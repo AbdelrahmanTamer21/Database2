@@ -31,8 +31,24 @@ public class DBApp {
 	public void createTable(String strTableName, 
 							String strClusteringKeyColumn,  
 							Hashtable<String,String> htblColNameType) throws DBAppException{
-								
-		throw new DBAppException("not implemented yet");
+		Field[] fields = new Field[htblColNameType.size()];
+		for (int i = 0;i<htblColNameType.size();i++){
+			fields[i] = new Field();
+			switch (htblColNameType.get(htblColNameType.keys().nextElement())){
+				case "java.lang.Integer":
+				case "java.lang.String":
+				case "java.lang.double":
+					break;
+				default:
+					throw new DBAppException("Invalid data type");
+			}
+			if(htblColNameType.containsKey(strClusteringKeyColumn)){
+				fields[i].setClusteringKey(true);
+			}
+			fields[i].setColumnName(htblColNameType.keys().nextElement());
+			fields[i].setColumnType(htblColNameType.get(htblColNameType.keys().nextElement()));
+		}
+		Table table = new Table(strTableName,fields);
 	}
 
 
@@ -40,7 +56,7 @@ public class DBApp {
 	public void createIndex(String   strTableName,
 							String   strColName,
 							String   strIndexName) throws DBAppException{
-		
+
 		throw new DBAppException("not implemented yet");
 	}
 
@@ -89,12 +105,13 @@ public class DBApp {
 	try{
 			String strTableName = "Student";
 			DBApp	dbApp = new DBApp( );
-			
+
 			Hashtable htblColNameType = new Hashtable( );
 			htblColNameType.put("id", "java.lang.Integer");
 			htblColNameType.put("name", "java.lang.String");
 			htblColNameType.put("gpa", "java.lang.double");
 			dbApp.createTable( strTableName, "id", htblColNameType );
+			/*
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
 			Hashtable htblColNameValue = new Hashtable( );
@@ -144,6 +161,7 @@ public class DBApp {
 			strarrOperators[0] = "OR";
 			// select * from Student where name = "John Noor" or gpa = 1.5;
 			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
+			 */
 		}
 		catch(Exception exp){
 			exp.printStackTrace( );
