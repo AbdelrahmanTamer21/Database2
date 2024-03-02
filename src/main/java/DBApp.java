@@ -1,8 +1,12 @@
 
-/** * @author Wael Abouelsaadat */ 
+/** * @author Wael Abouelsaadat */
 
-import java.util.Iterator;
-import java.util.Hashtable;
+import com.opencsv.CSVWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class DBApp {
@@ -31,24 +35,51 @@ public class DBApp {
 	public void createTable(String strTableName, 
 							String strClusteringKeyColumn,  
 							Hashtable<String,String> htblColNameType) throws DBAppException{
-		Field[] fields = new Field[htblColNameType.size()];
-		for (int i = 0;i<htblColNameType.size();i++){
-			fields[i] = new Field();
-			switch (htblColNameType.get(htblColNameType.keys().nextElement())){
-				case "java.lang.Integer":
-				case "java.lang.String":
-				case "java.lang.double":
-					break;
-				default:
-					throw new DBAppException("Invalid data type");
+
+		// first create file object for file placed at location specified by filepath
+		// Create the metadata for the table
+		File file = new File("metadata.csv");
+		try{
+			FileWriter outputFile = new FileWriter(file);
+
+			//create CSVWriter with ',' as separator
+			CSVWriter writer = new CSVWriter(outputFile, ',',
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END);
+
+			// create a List which contains String array
+			List<String[]> data = new ArrayList<String[]>();
+			Enumeration<String> e = htblColNameType.keys();
+			while (e.hasMoreElements()) {
+
+				// Getting the key of a particular entry
+				String key = e.nextElement();
+				String isPrimaryKey = String.valueOf(strClusteringKeyColumn.equals(key));
+				//Column type
+				String type = htblColNameType.get(key);
+
+				//Check type is within bounds
+				if(!Objects.equals(type, "java.lang.Integer")
+						&& !Objects.equals(type, "java.lang.String")
+						&& !Objects.equals(type, "java.lang.double"))
+				{
+					throw new WrongTypeException();
+				}
+
+				//Order is -> Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
+				data.add(new String[] {strTableName, key, type, isPrimaryKey, "null", "null"});
 			}
-			if(htblColNameType.containsKey(strClusteringKeyColumn)){
-				fields[i].setClusteringKey(true);
-			}
-			fields[i].setColumnName(htblColNameType.keys().nextElement());
-			fields[i].setColumnType(htblColNameType.get(htblColNameType.keys().nextElement()));
+			Collections.reverse(data);
+			writer.writeAll(data);
+
+			// closing writer connection
+			writer.close();
+		}catch (Exception e){
+			e.printStackTrace();
 		}
-		Table table = new Table(strTableName,fields);
+
+		Table table = new Table(strTableName);
 	}
 
 
