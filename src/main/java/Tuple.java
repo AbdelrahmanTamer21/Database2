@@ -1,13 +1,15 @@
 import java.io.Serializable;
-import java.util.Vector;
 
 public class Tuple implements Serializable {
-    private String[] values;
+    private final String[] values;
 
     public Tuple(String[] values){
         this.values = values;
     }
 
+    public String[] getValues(){
+        return values;
+    }
     public String toString() {
         StringBuilder result = new StringBuilder();
         for(String val:values){

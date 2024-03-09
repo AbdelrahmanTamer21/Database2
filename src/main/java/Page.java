@@ -1,22 +1,41 @@
-import java.io.Serializable;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
 public class Page implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private transient String tableName;
+    private int serial;
     private Vector<Tuple> tuples;
-    private transient int maxSize;
+    private final int maxSize = 200;
 
-    public Page(Vector<Tuple> tuples) {
+    public Page(Vector<Tuple> tuples, String tableName, int serial) {
         this.tuples = tuples;
+        this.tableName = tableName;
+        this.serial = serial;
+        serialize(this,tableName, serial);
     }
 
-    public void addTuple(Tuple tuple) {
+    public Vector<Tuple> getTuples(){
+        return tuples;
+    }
+
+    // Method to add tuple to vector with checks
+    public void addTuple(Tuple tuple) throws DBAppException {
         if (tuples.size() < maxSize) {
-            tuples.add(tuple);
+            if(!isDuplicate(tuple.getValues()[0])) { //check if the primary key is duplicated
+                tuples.add(tuple);
+                sort();
+            } else {
+                throw new DBAppException("Primary key is duplicated");
+            }
         } else {
             // Page is full, cannot add more tuples
-            System.out.println("Page is full, cannot add more tuples.");
+            throw new DBAppException("Page is full");
         }
+    }
+
+    // Method to remove last tuple from vector and return it for shifting
+    public Tuple removeLastTuple(){
+        return tuples.remove(tuples.size()-1);
     }
 
     public String toString(){
@@ -27,31 +46,113 @@ public class Page implements Serializable {
         return result.toString();
     }
 
+    // Method to check if the page is empty
     public boolean isEmpty() {
         return tuples.isEmpty();
     }
 
+    // Method to check if the page is full
     public boolean isFull(){
         return tuples.size()==maxSize;
     }
 
-    public int binarySearchString(String[] arr, String x){
+    // Sort the tuples in the page based on the first value in the tuple's string array
+    public void sort(){
+        //e3tebarn en awl haga heya el key:)
+        tuples.sort(Comparator.comparing(s -> s.getValues()[0]));
+    }
+
+    // Method to insert a new tuple in the page with checks over the types of the values
+    public void insert(Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
+        String[] dataValues = new String[attributes.size()];
+        int i = 0;
+        //iterate over the attributes and check if the value is of the same type
+        for(Map.Entry<String, String> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            String type = entry.getValue();
+            try {
+                Class<?> cls = Class.forName(type);
+                if(cls.isInstance(values.get(key))) {
+                    String data = String.valueOf(values.get(key));
+                    dataValues[i] = data;
+                    i++;
+                } else {
+                    throw new DBAppException("Wrong type");
+                }
+            }catch (ClassNotFoundException e){
+                e.printStackTrace();
+            }
+        }
+        this.addTuple(new Tuple(dataValues));
+    }
+
+    // Method to search for a primary Key in the page using binary search
+    public int binarySearchString(String key){
         int low = 0;
-        int high = arr.length - 1;
+        int high = tuples.size() - 1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
-            int comparisonResult = x.compareTo(arr[mid]);
+            String midValue = tuples.get(mid).getValues()[0];
+            int cmp = key.compareTo(midValue);
 
-            if (comparisonResult == 0) {
-                return mid; // String found at index mid
-            } else if (comparisonResult > 0) {
-                low = mid + 1; // Search in the right half
+            if (cmp < 0) {
+                high = mid - 1;
+            } else if (cmp > 0) {
+                low = mid + 1;
             } else {
-                high = mid - 1; // Search in the left half
+                return mid; // key found
             }
         }
 
         return -1;
+    }
+
+    // Method to serialize the page
+    public static void serialize(Page page,String tableName,int serial) {
+        try {
+            //you may also write this verbosely as
+            // FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+            FileOutputStream fileOutputStream = new FileOutputStream("Pages/" + tableName + "/" + tableName + serial + ".ser");
+
+            ObjectOutputStream objOutputStream = new ObjectOutputStream(fileOutputStream);
+
+            objOutputStream.writeObject(page);
+            //we don't want a memory leak if we can avoid it
+            fileOutputStream.close();
+            objOutputStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to deserialize the page
+    public static Page deserialize(String tableName,int serial){
+        try {
+            FileInputStream fileInputStream = new FileInputStream ("Pages/" + tableName + "/" + tableName + serial +".ser");
+
+            ObjectInputStream  objInputStream = new ObjectInputStream (fileInputStream);
+
+            Page page = (Page) objInputStream.readObject();
+
+            objInputStream.close();
+            fileInputStream.close();
+
+            return page;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Method to check if this value already exists in the page
+    public boolean isDuplicate(String primaryKey){
+        return binarySearchString(primaryKey) != -1;
+    }
+
+    public int getSerial() {
+        return serial;
     }
 }

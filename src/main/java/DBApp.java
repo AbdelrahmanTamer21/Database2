@@ -6,7 +6,6 @@ import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class DBApp {
@@ -39,8 +38,11 @@ public class DBApp {
 		// first create file object for file placed at location specified by filepath
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
+		if(checkTableExists(strTableName)){
+			throw new DBAppException("Table already exists");
+		}
 		try{
-			FileWriter outputFile = new FileWriter(file);
+			FileWriter outputFile = new FileWriter(file,true);
 
 			//create CSVWriter with ',' as separator
 			CSVWriter writer = new CSVWriter(outputFile, ',',
@@ -49,8 +51,9 @@ public class DBApp {
 					CSVWriter.DEFAULT_LINE_END);
 
 			// create a List which contains String array
-			List<String[]> data = new ArrayList<String[]>();
+			List<String[]> data = new ArrayList<>();
 			Enumeration<String> e = htblColNameType.keys();
+			LinkedHashMap<String, String> attr = new LinkedHashMap<>();
 			while (e.hasMoreElements()) {
 
 				// Getting the key of a particular entry
@@ -62,26 +65,44 @@ public class DBApp {
 				//Check type is within bounds
 				if(!Objects.equals(type, "java.lang.Integer")
 						&& !Objects.equals(type, "java.lang.String")
-						&& !Objects.equals(type, "java.lang.double"))
+						&& !Objects.equals(type, "java.lang.Double"))
 				{
-					throw new WrongTypeException();
+					throw new DBAppException("Wrong type");
 				}
 
 				//Order is -> Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
 				data.add(new String[] {strTableName, key, type, isPrimaryKey, "null", "null"});
+				attr.put(key,type);
 			}
 			Collections.reverse(data);
 			writer.writeAll(data);
+			Table table = new Table(strTableName,attr);
 
 			// closing writer connection
 			writer.close();
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-
-		Table table = new Table(strTableName);
 	}
 
+
+	private boolean checkTableExists(String strTableName){
+		File file = new File("metadata.csv");
+		try{
+			Scanner scanner = new Scanner(file);
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				String[] values = line.split(",");
+				if(values[0].equals(strTableName)){
+					return true;
+				}
+			}
+			scanner.close();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	// following method creates a B+tree index 
 	public void createIndex(String   strTableName,
@@ -96,7 +117,8 @@ public class DBApp {
 	// htblColNameValue must include a value for the primary key
 	public void insertIntoTable(String strTableName, 
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException{
-	
+
+		Table.insertTuple(strTableName,htblColNameValue);
 		throw new DBAppException("not implemented yet");
 	}
 
@@ -140,8 +162,9 @@ public class DBApp {
 			Hashtable htblColNameType = new Hashtable( );
 			htblColNameType.put("id", "java.lang.Integer");
 			htblColNameType.put("name", "java.lang.String");
-			htblColNameType.put("gpa", "java.lang.double");
+			htblColNameType.put("gpa", "java.lang.Double");
 			dbApp.createTable( strTableName, "id", htblColNameType );
+
 			/*
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
