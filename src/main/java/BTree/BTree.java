@@ -50,6 +50,13 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 				this.root = n; 
 		}
 	}
+
+	public void update(TKey key,TValue newValue){
+		BTreeLeafNode<TKey, TValue> node = this.findLeafNodeShouldContainKey(key);
+
+		int index = node.search(key);
+		node.setValue(index,newValue);
+	}
 	
 	/**
 	 * Search the leaf node which should contain the specified key
@@ -71,6 +78,9 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 		bTree.insert("123","5,12");
 		bTree.insert("12","12");
 		String data = String.valueOf(bTree.search("123"));
+		System.out.println(data);
+		bTree.update("123","5,11");
+		data = String.valueOf(bTree.search("123"));
 		System.out.println(data);
 	}
 }

@@ -4,22 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Create table in DBApp">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/DBApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DBApp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/DBAppException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DBAppException.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Page.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Page.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/SQLTerm.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/SQLTerm.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Table.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Table.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Tuple.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Tuple.class" afterDir="false" />
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="B plus tree implementation">
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -175,7 +161,14 @@
       <option name="project" value="LOCAL" />
       <updated>1709405529733</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="B plus tree implementation">
+      <created>1710105307071</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1710105307071</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -199,6 +192,7 @@
     <MESSAGE value="Create table in DBApp" />
     <MESSAGE value="Added metadata.csv as per the pdf and made the tuple and page classes with the Vector of tuples in each page, added maven to project so that i can add the library to write to the csv file" />
     <MESSAGE value="Created the insertion logic with the methods to serialize and deserialize a page,The logic is broken into  multiple levels, in the table class figure out which page to insert in and if there is any shifting necessary, in the page class it handles check the data actually matches the data types of the tables then adds it to the Vector then resorts it" />
-    <option name="LAST_COMMIT_MESSAGE" value="Created the insertion logic with the methods to serialize and deserialize a page,The logic is broken into  multiple levels, in the table class figure out which page to insert in and if there is any shifting necessary, in the page class it handles check the data actually matches the data types of the tables then adds it to the Vector then resorts it" />
+    <MESSAGE value="B plus tree implementation" />
+    <option name="LAST_COMMIT_MESSAGE" value="B plus tree implementation" />
   </component>
 </project>
