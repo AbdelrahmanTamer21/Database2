@@ -1,7 +1,7 @@
 import java.io.Serializable;
 
 public class Tuple implements Serializable {
-    private final String[] values;
+    private String[] values;
 
     public Tuple(String[] values){
         this.values = values;
@@ -10,6 +10,10 @@ public class Tuple implements Serializable {
     public String[] getValues(){
         return values;
     }
+    public void setValues(String[] values){
+        this.values = values;
+    }
+
     public String toString() {
         StringBuilder result = new StringBuilder();
         for(String val:values){

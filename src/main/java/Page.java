@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class Page implements Serializable {
-    private transient String tableName;
+    private String tableName;
     private int serial;
     private Vector<Tuple> tuples;
     private final int maxSize = 200;
@@ -84,6 +84,35 @@ public class Page implements Serializable {
             }
         }
         this.addTuple(new Tuple(dataValues));
+    }
+
+    public void update(String primaryKey, Hashtable<String,Object> values) throws DBAppException{
+        int indexToUpdate = binarySearchString(primaryKey);
+        LinkedHashMap<String,String> attributes = Table.getAttributes(tableName);
+        String[] dataValues = new String[attributes.size()];
+        int i = 0;
+        //iterate over the attributes and check if the value is of the same type
+        for(Map.Entry<String, String> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            String type = entry.getValue();
+            try {
+                Class<?> cls = Class.forName(type);
+                if(cls.isInstance(values.get(key))) {
+                    String data = String.valueOf(values.get(key));
+                    dataValues[i] = data;
+                    i++;
+                } else {
+                    throw new DBAppException("Wrong type");
+                }
+            }catch (ClassNotFoundException e){
+                e.printStackTrace();
+            }
+        }
+        tuples.get(indexToUpdate).setValues(dataValues);
+    }
+
+    public void delete(String primaryKey){
+        tuples.remove(binarySearchString(primaryKey));
     }
 
     // Method to search for a primary Key in the page using binary search
