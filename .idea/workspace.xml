@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Fixed the shifting function in Table class for when there are values that need to be inserted between pages">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/T" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +140,7 @@
       <workItem from="1709745769195" duration="635000" />
       <workItem from="1709838148442" duration="17401000" />
       <workItem from="1710312075336" duration="804000" />
-      <workItem from="1710318341379" duration="2577000" />
+      <workItem from="1710318341379" duration="3098000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -193,7 +191,14 @@
       <option name="project" value="LOCAL" />
       <updated>1710312252476</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Fixed the shifting function in Table class for when there are values that need to be inserted between pages">
+      <created>1710321029557</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1710321029557</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
