@@ -5,10 +5,10 @@ import java.util.*;
 import Exception.DBAppException;
 
 public class Page implements Serializable {
-    private String tableName;
+    private final String tableName;
     private int serial;
     private Vector<Tuple> tuples;
-    private final int maxSize = 200;
+    private final int maxSize = DBApp.pageSize;
 
     public Page(Vector<Tuple> tuples, String tableName, int serial) {
         this.tuples = tuples;
@@ -40,6 +40,9 @@ public class Page implements Serializable {
     public Tuple removeLastTuple(){
         return tuples.remove(tuples.size()-1);
     }
+
+    public Tuple getLastTuple(){
+        return tuples.get(tuples.size()-1);}
 
     public String toString(){
         StringBuilder result = new StringBuilder();

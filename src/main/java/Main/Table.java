@@ -10,10 +10,8 @@ import java.util.*;
 import Exception.DBAppException;
 
 public class Table implements Serializable {
-    private static int serial = 1;
-    private String tableName;
+    private final String tableName;
     private transient LinkedHashMap<String,String> attributes;
-    private ArrayList<String> fileNames;
 
     public Table(String name, LinkedHashMap<String, String> attributes) {
         this.tableName = name;
@@ -41,7 +39,7 @@ public class Table implements Serializable {
     }
     // Method to get the attributes of a table
     public static LinkedHashMap<String,String> getAttributes(String strTableName){
-        LinkedHashMap<String,String> attr = new LinkedHashMap<String,String>();
+        LinkedHashMap<String,String> attr = new LinkedHashMap<>();
         String csvFile = "metadata.csv";
         try (CSVReader reader = new CSVReader(new FileReader(csvFile))) {
             String[] currLine;
@@ -112,7 +110,7 @@ public class Table implements Serializable {
 
             CSVReader csvReader = new CSVReader(fileReader);
 
-            String[] values = null;
+            String[] values;
             while ((values = csvReader.readNext()) != null) {
                 if(Objects.equals(values[0], strTableName)){
                     if(Objects.equals(values[3], "true")) {
@@ -241,6 +239,15 @@ public class Table implements Serializable {
     public static void shiftValuesToOtherPages(List<Page> pages, int serial, String tableName, Hashtable<String, Object> values) throws DBAppException {
         List<Page> newPages = pages.subList(serial-1, pages.size());
         LinkedHashMap<String, String> attributes = getAttributes(tableName);
+        String primaryKey = getPrimaryKey(tableName);
+
+        if(pages.get(serial-1).getLastTuple().getValues()[0].compareTo(String.valueOf(values.get(primaryKey))) < 0){
+            if(serial >= pages.size()){
+                newPages = new LinkedList<>();
+            }else {
+                newPages = pages.subList(serial, pages.size());
+            }
+        }
 
         for (Page page : newPages) {
             if (!page.isFull()) {
@@ -284,9 +291,9 @@ public class Table implements Serializable {
         DBApp dbApp = new DBApp();
 
         for (int i = 0;i<5;i++) {
-            Hashtable htblColNameValue = new Hashtable();
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", Integer.valueOf(2343442+i*2));
-            htblColNameValue.put("name", new String("Ahmed Noor"));
+            htblColNameValue.put("name", "Ahmed Noor");
             htblColNameValue.put("gpa", Double.valueOf(0.95+i));
             try {
                 insertTuple("Student", htblColNameValue);
@@ -295,9 +302,9 @@ public class Table implements Serializable {
             }
         }
 
-        Hashtable htblColNameValue = new Hashtable();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", Integer.valueOf(2343443));
-        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("name", "Ahmed Noor");
         htblColNameValue.put("gpa", Double.valueOf(0.95));
         try {
             insertTuple("Student", htblColNameValue);
@@ -306,9 +313,9 @@ public class Table implements Serializable {
         }
 
 
-        htblColNameValue = new Hashtable();
+        htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", Integer.valueOf(2343443));
-        htblColNameValue.put("name", new String("Ahmed Ahmed"));
+        htblColNameValue.put("name", "Ahmed Ahmed");
         htblColNameValue.put("gpa", Double.valueOf(0.7));
         try {
             updateTuple("Student", "2343443",  htblColNameValue);
@@ -325,9 +332,9 @@ public class Table implements Serializable {
         }
         System.out.println("Done");
 
-        htblColNameValue = new Hashtable();
+        htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", Integer.valueOf(2343444));
-        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("name", "Ahmed Noor");
         htblColNameValue.put("gpa", Double.valueOf(0.95));
         try {
             deleteTuple("Student", htblColNameValue);
@@ -335,9 +342,9 @@ public class Table implements Serializable {
             e.printStackTrace();
         }
 
-        htblColNameValue = new Hashtable();
+        htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", Integer.valueOf(2343446));
-        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("name", "Ahmed Noor");
         htblColNameValue.put("gpa", Double.valueOf(0.95));
         try {
             deleteTuple("Student", htblColNameValue);
@@ -345,12 +352,11 @@ public class Table implements Serializable {
             e.printStackTrace();
         }
 
-        htblColNameValue = new Hashtable();
+        htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", Integer.valueOf(2343446));
-        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("name", "Ahmed Noor");
         htblColNameValue.put("gpa", Double.valueOf(0.95));
         try {
-            System.out.println(findPageToInsert(getPages("Student"), "2343446"));
             insertTuple("Student", htblColNameValue);
         } catch (DBAppException e) {
             e.printStackTrace();

@@ -4,29 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="B plus tree implementation">
-      <change afterPath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Fixed the shifting function in Table class for when there are values that need to be inserted between pages">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DBAppException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Exception/DBAppException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/SQLTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/SQLTerm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Tuple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Tuple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/DBApp.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/DBAppException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Main.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Page.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/SQLTerm.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Table.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Tuple.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,13 +54,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaClassFindUsagesOptions.isSearchForTextOccurrences": "false",
-    "git-widget-placeholder": "master",
-    "node.js.selected.package.tslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaClassFindUsagesOptions.isSearchForTextOccurrences&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\anoos\IdeaProjects\Database2\src\main\java\BTree" />
@@ -155,6 +141,8 @@
       <workItem from="1709577176914" duration="79000" />
       <workItem from="1709745769195" duration="635000" />
       <workItem from="1709838148442" duration="17401000" />
+      <workItem from="1710312075336" duration="804000" />
+      <workItem from="1710318341379" duration="2577000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -198,7 +186,14 @@
       <option name="project" value="LOCAL" />
       <updated>1710105307071</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Added search by range and to string function to B plus tree implementation,Fixed delete Tuple function(Extra tests needed),Split everything into packages for better referencing">
+      <created>1710312252476</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1710312252476</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,6 +218,8 @@
     <MESSAGE value="Added metadata.csv as per the pdf and made the tuple and page classes with the Vector of tuples in each page, added maven to project so that i can add the library to write to the csv file" />
     <MESSAGE value="Created the insertion logic with the methods to serialize and deserialize a page,The logic is broken into  multiple levels, in the table class figure out which page to insert in and if there is any shifting necessary, in the page class it handles check the data actually matches the data types of the tables then adds it to the Vector then resorts it" />
     <MESSAGE value="B plus tree implementation" />
-    <option name="LAST_COMMIT_MESSAGE" value="B plus tree implementation" />
+    <MESSAGE value="Added search by range and to string function to B plus tree implementation,Fixed delete Tuple function(Extra tests needed),Split everything into packages for better referencing" />
+    <MESSAGE value="Fixed the shifting function in Table class for when there are values that need to be inserted between pages" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed the shifting function in Table class for when there are values that need to be inserted between pages" />
   </component>
 </project>

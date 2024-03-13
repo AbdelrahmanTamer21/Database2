@@ -4,14 +4,16 @@ package Main;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import Exception.DBAppException;
 
 
 public class DBApp {
 
-
+	public static int pageSize = readConfig("MaximumRowsCountinPage");
 
 	public DBApp( ){
 		init();
@@ -26,6 +28,22 @@ public class DBApp {
 		File indicesDir = new File("Indices");
 		indicesDir.mkdir();
 		
+	}
+
+	//Read a property from the .config File
+	public static int readConfig(String property){
+		Properties properties = new Properties();
+		try {
+			FileInputStream fileInputStream = new FileInputStream("DBApp.config");
+			properties.load(fileInputStream);
+			fileInputStream.close();
+
+			return Integer.parseInt(properties.getProperty(property));
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 2;
 	}
 
 
@@ -43,7 +61,7 @@ public class DBApp {
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
 		if(checkTableExists(strTableName)){
-			throw new DBAppException("Main.Table already exists");
+			throw new DBAppException("Table already exists");
 		}
 		try{
 			FileWriter outputFile = new FileWriter(file,true);
@@ -121,8 +139,7 @@ public class DBApp {
 	// htblColNameValue must include a value for the primary key
 	public void insertIntoTable(String strTableName, 
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException {
-		Table.insertTuple(strTableName,htblColNameValue);
-		throw new DBAppException("not implemented yet");
+		Table.insertTuple(strTableName, htblColNameValue);
 	}
 
 
@@ -134,7 +151,7 @@ public class DBApp {
 							String strClusteringKeyValue,
 							Hashtable<String,Object> htblColNameValue   )  throws DBAppException {
 	
-		throw new DBAppException("not implemented yet");
+		Table.updateTuple(strTableName,strClusteringKeyValue,htblColNameValue);
 	}
 
 
@@ -145,7 +162,7 @@ public class DBApp {
 	public void deleteFromTable(String strTableName, 
 								Hashtable<String,Object> htblColNameValue) throws DBAppException {
 	
-		throw new DBAppException("not implemented yet");
+		Table.deleteTuple(strTableName,htblColNameValue);
 	}
 
 
