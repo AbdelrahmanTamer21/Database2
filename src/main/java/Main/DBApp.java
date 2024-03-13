@@ -1,4 +1,4 @@
-
+package Main;
 /** * @author Wael Abouelsaadat */
 
 import com.opencsv.CSVWriter;
@@ -6,6 +6,7 @@ import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
+import Exception.DBAppException;
 
 
 public class DBApp {
@@ -13,14 +14,17 @@ public class DBApp {
 
 
 	public DBApp( ){
-		
+		init();
 	}
 
 	// this does whatever initialization you would like 
 	// or leave it empty if there is no code you want to 
 	// execute at application startup 
 	public void init( ){
-		
+		File pagesDir = new File("Pages");
+		pagesDir.mkdir();
+		File indicesDir = new File("Indices");
+		indicesDir.mkdir();
 		
 	}
 
@@ -33,13 +37,13 @@ public class DBApp {
 	// type as value
 	public void createTable(String strTableName, 
 							String strClusteringKeyColumn,  
-							Hashtable<String,String> htblColNameType) throws DBAppException{
+							Hashtable<String,String> htblColNameType) throws DBAppException {
 
 		// first create file object for file placed at location specified by filepath
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
 		if(checkTableExists(strTableName)){
-			throw new DBAppException("Table already exists");
+			throw new DBAppException("Main.Table already exists");
 		}
 		try{
 			FileWriter outputFile = new FileWriter(file,true);
@@ -70,7 +74,7 @@ public class DBApp {
 					throw new DBAppException("Wrong type");
 				}
 
-				//Order is -> Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
+				//Order is -> Main.Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
 				data.add(new String[] {strTableName, key, type, isPrimaryKey, "null", "null"});
 				attr.put(key,type);
 			}
@@ -107,7 +111,7 @@ public class DBApp {
 	// following method creates a B+tree index 
 	public void createIndex(String   strTableName,
 							String   strColName,
-							String   strIndexName) throws DBAppException{
+							String   strIndexName) throws DBAppException {
 
 		throw new DBAppException("not implemented yet");
 	}
@@ -116,8 +120,7 @@ public class DBApp {
 	// following method inserts one row only. 
 	// htblColNameValue must include a value for the primary key
 	public void insertIntoTable(String strTableName, 
-								Hashtable<String,Object>  htblColNameValue) throws DBAppException{
-
+								Hashtable<String,Object>  htblColNameValue) throws DBAppException {
 		Table.insertTuple(strTableName,htblColNameValue);
 		throw new DBAppException("not implemented yet");
 	}
@@ -129,7 +132,7 @@ public class DBApp {
 	// strClusteringKeyValue is the value to look for to find the row to update.
 	public void updateTable(String strTableName, 
 							String strClusteringKeyValue,
-							Hashtable<String,Object> htblColNameValue   )  throws DBAppException{
+							Hashtable<String,Object> htblColNameValue   )  throws DBAppException {
 	
 		throw new DBAppException("not implemented yet");
 	}
@@ -140,14 +143,14 @@ public class DBApp {
 	// to identify which rows/tuples to delete. 	
 	// htblColNameValue enteries are ANDED together
 	public void deleteFromTable(String strTableName, 
-								Hashtable<String,Object> htblColNameValue) throws DBAppException{
+								Hashtable<String,Object> htblColNameValue) throws DBAppException {
 	
 		throw new DBAppException("not implemented yet");
 	}
 
 
-	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, 
-									String[]  strarrOperators) throws DBAppException{
+	public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
+									String[]  strarrOperators) throws DBAppException {
 										
 		return null;
 	}
@@ -164,8 +167,8 @@ public class DBApp {
 			htblColNameType.put("name", "java.lang.String");
 			htblColNameType.put("gpa", "java.lang.Double");
 			dbApp.createTable( strTableName, "id", htblColNameType );
-
 			/*
+
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
 			Hashtable htblColNameValue = new Hashtable( );
@@ -199,8 +202,8 @@ public class DBApp {
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 
-			SQLTerm[] arrSQLTerms;
-			arrSQLTerms = new SQLTerm[2];
+			Main.SQLTerm[] arrSQLTerms;
+			arrSQLTerms = new Main.SQLTerm[2];
 			arrSQLTerms[0]._strTableName =  "Student";
 			arrSQLTerms[0]._strColumnName=  "name";
 			arrSQLTerms[0]._strOperator  =  "=";

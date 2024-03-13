@@ -5,7 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="B plus tree implementation">
+      <change afterPath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DBAppException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Exception/DBAppException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/SQLTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/SQLTerm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Tuple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Tuple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DBApp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DBAppException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Page.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/SQLTerm.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Table.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Tuple.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +40,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="origin/master" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -26,6 +50,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
@@ -47,10 +72,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/java/BTree" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaClassFindUsagesOptions.isSearchForTextOccurrences": "false",
+    "git-widget-placeholder": "master",
+    "node.js.selected.package.tslint": "(autodetect)"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\anoos\IdeaProjects\Database2\src\main\java\BTree" />
@@ -58,10 +86,12 @@
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2" />
+      <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\src" />
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\Pages\Student" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.BTree">
+  <component name="RunManager" selected="Application.Table">
     <configuration name="BTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="BTree.BTree" />
       <module name="Database2" />
@@ -76,14 +106,14 @@
       </method>
     </configuration>
     <configuration name="DBApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="DBApp" />
+      <option name="MAIN_CLASS_NAME" value="Main.DBApp" />
       <module name="Database2" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <configuration name="Table" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Table" />
+      <option name="MAIN_CLASS_NAME" value="Main.Table" />
       <module name="Database2" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -104,10 +134,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.BTree" />
-        <item itemvalue="Application.bplustree" />
         <item itemvalue="Application.Table" />
         <item itemvalue="Application.DBApp" />
+        <item itemvalue="Application.BTree" />
+        <item itemvalue="Application.bplustree" />
       </list>
     </recent_temporary>
   </component>

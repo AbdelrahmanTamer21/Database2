@@ -14,11 +14,6 @@
             <artifactId>opencsv</artifactId>
             <version>4.1</version>
         </dependency>
-        <dependency>
-            <groupId>io.github.myui</groupId>
-            <artifactId>btree4j</artifactId>
-            <version>0.9.1</version>
-        </dependency>
     </dependencies>
 
     <properties>

@@ -1,6 +1,6 @@
 package BTree;
 
-class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
+class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 	protected final static int INNERORDER = 4;
 	protected Object[] children; 
 	

@@ -1,5 +1,8 @@
+package Main;
+
 import java.io.*;
 import java.util.*;
+import Exception.DBAppException;
 
 public class Page implements Serializable {
     private String tableName;
@@ -28,8 +31,8 @@ public class Page implements Serializable {
                 throw new DBAppException("Primary key is duplicated");
             }
         } else {
-            // Page is full, cannot add more tuples
-            throw new DBAppException("Page is full");
+            // Main.Page is full, cannot add more tuples
+            System.out.println("Page is full");
         }
     }
 
@@ -86,7 +89,7 @@ public class Page implements Serializable {
         this.addTuple(new Tuple(dataValues));
     }
 
-    public void update(String primaryKey, Hashtable<String,Object> values) throws DBAppException{
+    public void update(String primaryKey, Hashtable<String,Object> values) throws DBAppException {
         int indexToUpdate = binarySearchString(primaryKey);
         LinkedHashMap<String,String> attributes = Table.getAttributes(tableName);
         String[] dataValues = new String[attributes.size()];
@@ -111,8 +114,12 @@ public class Page implements Serializable {
         tuples.get(indexToUpdate).setValues(dataValues);
     }
 
-    public void delete(String primaryKey){
-        tuples.remove(binarySearchString(primaryKey));
+    public void delete(String primaryKey) throws DBAppException {
+        int index = binarySearchString(primaryKey);
+        if(index == -1){
+            throw new DBAppException("Primary key not found");
+        }
+        tuples.remove(index);
     }
 
     // Method to search for a primary Key in the page using binary search
@@ -183,5 +190,9 @@ public class Page implements Serializable {
 
     public int getSerial() {
         return serial;
+    }
+
+    public void setSerial(int serial) {
+        this.serial = serial;
     }
 }

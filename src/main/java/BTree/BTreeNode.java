@@ -1,11 +1,14 @@
 package BTree;
 
+import java.io.Serializable;
+import java.lang.reflect.TypeVariable;
+
 enum TreeNodeType {
 	InnerNode,
 	LeafNode
 }
 
-abstract class BTreeNode<TKey extends Comparable<TKey>> {
+abstract class BTreeNode<TKey extends Comparable<TKey>> implements Serializable {
 	protected Object[] keys;
 	protected int keyCount;
 	protected BTreeNode<TKey> parentNode;
@@ -153,4 +156,11 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	protected abstract void fusionWithSibling(TKey sinkKey, BTreeNode<TKey> rightSibling);
 	
 	protected abstract TKey transferFromSibling(TKey sinkKey, BTreeNode<TKey> sibling, int borrowIndex);
+
+	public String toString() {
+		String s = "";
+		for (int i = 0; i < this.getKeyCount(); ++i)
+			s += this.getKey(i) + " ";
+		return s;
+	}
 }

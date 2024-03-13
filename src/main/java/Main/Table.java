@@ -1,3 +1,5 @@
+package Main;
+
 import com.opencsv.CSVReader;
 
 import java.io.File;
@@ -5,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import Exception.DBAppException;
 
 public class Table implements Serializable {
     private static int serial = 1;
@@ -16,14 +19,18 @@ public class Table implements Serializable {
         this.tableName = name;
         this.attributes = attributes;
         // Create a directory for the table's pages
-        File dir = new File("Pages/"+name);
-        dir.mkdirs();
+        File pagesDir = new File("Pages/"+name);
+        pagesDir.mkdirs();
+        // Create a directory for the table's indices
+        File indexDir = new File("Indices/"+name);
+        indexDir.mkdirs();
     }
 
     // Method to get all the page names of a table
     public static List<String> getPageNames(String tableName){
         List<String> foundFiles = new ArrayList<>();
         File folder = new File("Pages/"+tableName);
+        folder.mkdirs();
         File[] listOfFiles = folder.listFiles();
         for (int i = 0; i < Objects.requireNonNull(listOfFiles).length; i++) {
             if (listOfFiles[i].isFile() && listOfFiles[i].getName().startsWith(tableName)) {
@@ -41,7 +48,7 @@ public class Table implements Serializable {
             while ((currLine = reader.readNext()) != null) {
                 // Process each row of the CSV file
                 if(Objects.equals(currLine[0], strTableName)){
-                  attr.put(currLine[1],currLine[2]);
+                    attr.put(currLine[1],currLine[2]);
                 }
             }
         } catch (IOException e) {
@@ -62,12 +69,13 @@ public class Table implements Serializable {
 
     // Method to insert a new tuple in the table
     public static void insertTuple(String strTableName, Hashtable<String,Object> htblColNameValue) throws DBAppException {
-        if(getPageNames(strTableName).isEmpty()){
+        List<String> pageNames = getPageNames(strTableName);
+        if(pageNames.isEmpty()){
             // Create a new page and insert the new tuple in it
             Page page = new Page(new Vector<>(),strTableName,1);
             page.insert(htblColNameValue,Table.getAttributes(strTableName));
             Page.serialize(page,strTableName,1);
-        }else if(getPageNames(strTableName).size() == 1 && !Objects.requireNonNull(Page.deserialize(strTableName, 1)).isFull()){
+        }else if(pageNames.size() == 1 && !Objects.requireNonNull(Page.deserialize(strTableName, 1)).isFull()){
             // If there's only one page and it's not full, insert the new tuple in it
             Page page = Page.deserialize(strTableName,1);
             page.insert(htblColNameValue,Table.getAttributes(strTableName));
@@ -104,13 +112,12 @@ public class Table implements Serializable {
 
             CSVReader csvReader = new CSVReader(fileReader);
 
-            String primaryKey = null;
             String[] values = null;
             while ((values = csvReader.readNext()) != null) {
-                if(values[0] == strTableName){
-                    if(values[3] == "true")
+                if(Objects.equals(values[0], strTableName)){
+                    if(Objects.equals(values[3], "true")) {
                         return values[1];
-                    else throw new DBAppException("Table doesn't exist");
+                    }else throw new DBAppException("Main.Table doesn't exist");
                 }
             }
         }catch (IOException e){
@@ -118,39 +125,49 @@ public class Table implements Serializable {
         }
         return null;
     }
-    public static void deleteTuple(String strTableName,Hashtable<String,Object> values ) throws DBAppException{
+    public static void deleteTuple(String strTableName,Hashtable<String,Object> values ) throws DBAppException {
         List<Page> pages = getPages(strTableName);
         String primaryKey = getPrimaryKey(strTableName);
-        int pageToDeleteFrom = findPageToDeleteFrom(pages, primaryKey);
-        if(pages.get(pageToDeleteFrom).getTuples().size() != 1){
-            pages.get(pageToDeleteFrom).delete(String.valueOf(values.get(primaryKey)));
+        int pageToDeleteFrom = findPageToDeleteFrom(pages, String.valueOf(values.get(primaryKey)));
+        Page page = pages.get(pageToDeleteFrom-1);
+        Vector<Tuple> tuples = page.getTuples();
+        if(tuples.size() > 1){
+            page.delete(String.valueOf(values.get(primaryKey)));
+            Page.serialize(page,strTableName,page.getSerial());
         }else{
-            if(pages.get(pageToDeleteFrom).getTuples().size()==0 || pages.get(pageToDeleteFrom).getTuples().get(0).getValues()[0] == primaryKey){
-
+            if(tuples.size() != 0 && tuples.get(0).getValues()[0].compareTo(String.valueOf(values.get(primaryKey))) == 0){
+                page.delete(String.valueOf(values.get(primaryKey)));
+                List<String> pageNames = getPageNames(strTableName);
+                pageNames = pageNames.subList(pageToDeleteFrom-1,pageNames.size());
+                File file = new File("Pages/" + strTableName + "/" + strTableName + pages.size()+".ser");
+                File folder = new File("Pages/"+strTableName);
+                File[] listOfFiles = folder.listFiles();
+                listOfFiles[pageToDeleteFrom-1].delete();
+                for (int i = pageToDeleteFrom-1; i < pageNames.size(); i++) {
+                    pages.get(i+1).setSerial(i+1);
+                    Page.serialize(pages.get(i+1),strTableName, i+1);
+                }
+                file.delete();
             }
         }
 
     }
     public static int findPageToDeleteFrom(List<Page> pages, String primaryKey){
-        int low = 0;
+        int low = 1;
         int high = pages.size() - 1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
             Page currentPage = pages.get(mid);
 
-            if(currentPage.isEmpty()){
-                return mid+1;
-            }
             // Compare the new string with the first value in the vector of current page
             String[] firstValue = currentPage.getTuples().get(0).getValues();
             int comparisonResult = primaryKey.compareTo(firstValue[0]);
-
-            // If newPrimaryKey is less than or equal to the first value, go left
+            // If primaryKey is less than or equal to the first value, go left
             if (comparisonResult < 0) {
                 return mid;
             }
-            // If newString is greater, go right
+            // If primaryKey is greater, go right
             else {
                 low = mid + 1;
             }
@@ -159,7 +176,7 @@ public class Table implements Serializable {
         return pages.size();
     }
     public static int findPageToUpdateIn(List<Page> pages, String primaryKey){
-        int low = 0;
+        int low = 1;
         int high = pages.size() - 1;
 
         while (low <= high) {
@@ -188,7 +205,7 @@ public class Table implements Serializable {
 
     //return the serial of the page to insert the new tuple in
     public static int findPageToInsert(List<Page> pages, String newPrimaryKey){
-        int low = 0;
+        int low = 1;
         int high = pages.size() - 1;
 
         while (low <= high) {
@@ -247,7 +264,7 @@ public class Table implements Serializable {
                     i++;
                 }
                 values = lastTuple;
-                Page.serialize(page,tableName,serial);
+                Page.serialize(page,tableName,page.getSerial());
             }
         }
         // If no page has space, create a new page and insert the new string
@@ -266,11 +283,11 @@ public class Table implements Serializable {
 
         DBApp dbApp = new DBApp();
 
-        for (int i = 0;i<3;i++) {
+        for (int i = 0;i<5;i++) {
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("id", Integer.valueOf(2343442+i*2));
             htblColNameValue.put("name", new String("Ahmed Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(0.95));
+            htblColNameValue.put("gpa", Double.valueOf(0.95+i));
             try {
                 insertTuple("Student", htblColNameValue);
             } catch (DBAppException e) {
@@ -289,6 +306,16 @@ public class Table implements Serializable {
         }
 
 
+        htblColNameValue = new Hashtable();
+        htblColNameValue.put("id", Integer.valueOf(2343443));
+        htblColNameValue.put("name", new String("Ahmed Ahmed"));
+        htblColNameValue.put("gpa", Double.valueOf(0.7));
+        try {
+            updateTuple("Student", "2343443",  htblColNameValue);
+        } catch (DBAppException e) {
+            e.printStackTrace();
+        }
+
         List<Page> pageList = getPages("Student");
         for (Page page: pageList) {
             System.out.println("Page Name: Student"+page.getSerial());
@@ -296,14 +323,36 @@ public class Table implements Serializable {
                 System.out.println(page.getTuples().get(i));
             }
         }
+        System.out.println("Done");
 
         htblColNameValue = new Hashtable();
-        htblColNameValue.put("id", Integer.valueOf(2343443));
-        htblColNameValue.put("name", new String("Ahmed Ahmed"));
-        htblColNameValue.put("gpa", Double.valueOf(0.75));
-        try{
-            updateTuple("Student","2343443",htblColNameValue);
-        }catch (DBAppException e){
+        htblColNameValue.put("id", Integer.valueOf(2343444));
+        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("gpa", Double.valueOf(0.95));
+        try {
+            deleteTuple("Student", htblColNameValue);
+        } catch (DBAppException e) {
+            e.printStackTrace();
+        }
+
+        htblColNameValue = new Hashtable();
+        htblColNameValue.put("id", Integer.valueOf(2343446));
+        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("gpa", Double.valueOf(0.95));
+        try {
+            deleteTuple("Student", htblColNameValue);
+        } catch (DBAppException e) {
+            e.printStackTrace();
+        }
+
+        htblColNameValue = new Hashtable();
+        htblColNameValue.put("id", Integer.valueOf(2343446));
+        htblColNameValue.put("name", new String("Ahmed Noor"));
+        htblColNameValue.put("gpa", Double.valueOf(0.95));
+        try {
+            System.out.println(findPageToInsert(getPages("Student"), "2343446"));
+            insertTuple("Student", htblColNameValue);
+        } catch (DBAppException e) {
             e.printStackTrace();
         }
 

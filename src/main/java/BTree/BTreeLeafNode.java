@@ -17,6 +17,10 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	public void setValue(int index, TValue value) {
 		this.values[index] = value;
 	}
+
+	public BTreeLeafNode<TKey, TValue> getRightSibling() {
+		return (BTreeLeafNode<TKey, TValue>)this.rightSibling;
+	}
 	
 	@Override
 	public TreeNodeType getNodeType() {
