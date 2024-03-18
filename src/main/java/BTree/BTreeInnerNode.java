@@ -1,7 +1,9 @@
 package BTree;
 
+import Main.DBApp;
+
 class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
-	protected final static int INNERORDER = 4;
+	protected final static int INNERORDER = DBApp.nodeOrder;
 	protected Object[] children; 
 	
 	public BTreeInnerNode() {
@@ -41,7 +43,16 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 		return index;
 	}
 	
-	
+	public int getChildIndex(TKey key){
+		for(int i = keys.length-1;i>=0;i--){
+			if(keys[i] != null && key.compareTo((TKey) keys[i])>=0){
+				return i;
+			}
+		}
+		return -1;
+	}
+
+
 	/* The codes below are used to support insertion operation */
 	
 	private void insertAt(int index, TKey key, BTreeNode<TKey> leftChild, BTreeNode<TKey> rightChild) {

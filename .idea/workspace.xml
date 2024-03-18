@@ -4,9 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Fixed the shifting function in Table class for when there are values that need to be inserted between pages">
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/T" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DBApp.config" beforeDir="false" afterPath="$PROJECT_DIR$/DBApp.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +48,9 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main/java/Main/Table.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -56,6 +67,7 @@
   &quot;keyToString&quot;: {
     &quot;JavaClassFindUsagesOptions.isSearchForTextOccurrences&quot;: &quot;false&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -119,8 +131,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.Table" />
-        <item itemvalue="Application.DBApp" />
         <item itemvalue="Application.BTree" />
+        <item itemvalue="Application.DBApp" />
         <item itemvalue="Application.bplustree" />
       </list>
     </recent_temporary>
@@ -140,7 +152,9 @@
       <workItem from="1709745769195" duration="635000" />
       <workItem from="1709838148442" duration="17401000" />
       <workItem from="1710312075336" duration="804000" />
-      <workItem from="1710318341379" duration="3098000" />
+      <workItem from="1710318341379" duration="18445000" />
+      <workItem from="1710441477393" duration="7680000" />
+      <workItem from="1710612183748" duration="3344000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -198,7 +212,14 @@
       <option name="project" value="LOCAL" />
       <updated>1710321029557</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Fixed the folder structure in github">
+      <created>1710321699472</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1710321699472</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -225,6 +246,7 @@
     <MESSAGE value="B plus tree implementation" />
     <MESSAGE value="Added search by range and to string function to B plus tree implementation,Fixed delete Tuple function(Extra tests needed),Split everything into packages for better referencing" />
     <MESSAGE value="Fixed the shifting function in Table class for when there are values that need to be inserted between pages" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed the shifting function in Table class for when there are values that need to be inserted between pages" />
+    <MESSAGE value="Fixed the folder structure in github" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed the folder structure in github" />
   </component>
 </project>

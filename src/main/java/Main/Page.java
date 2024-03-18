@@ -92,9 +92,8 @@ public class Page implements Serializable {
         this.addTuple(new Tuple(dataValues));
     }
 
-    public void update(String primaryKey, Hashtable<String,Object> values) throws DBAppException {
+    public Hashtable<String, Object> update(String primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
         int indexToUpdate = binarySearchString(primaryKey);
-        LinkedHashMap<String,String> attributes = Table.getAttributes(tableName);
         String[] dataValues = new String[attributes.size()];
         int i = 0;
         //iterate over the attributes and check if the value is of the same type
@@ -114,7 +113,9 @@ public class Page implements Serializable {
                 e.printStackTrace();
             }
         }
+        Tuple tuple = tuples.get(indexToUpdate);
         tuples.get(indexToUpdate).setValues(dataValues);
+        return getValuesFromTuple(tuple,attributes);
     }
 
     public void delete(String primaryKey) throws DBAppException {
@@ -123,6 +124,25 @@ public class Page implements Serializable {
             throw new DBAppException("Primary key not found");
         }
         tuples.remove(index);
+    }
+
+
+    public Hashtable<String, Object> getValuesFromTuple(Tuple tuple, LinkedHashMap<String, String> attributes){
+        String[] dataValues = tuple.getValues();
+        Hashtable<String, Object> result = new Hashtable<>();
+        int i = 0;
+        //iterate over the attributes and check if the value is of the same type
+        for(Map.Entry<String, String> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            String type = entry.getValue();
+            switch (type) {
+                case "java.lang.Integer" -> result.put(key, Integer.parseInt(dataValues[i]));
+                case "java.lang.String" -> result.put(key, dataValues[i]);
+                case "java.lang.Double" -> result.put(key, Double.parseDouble(dataValues[i]));
+            }
+            i++;
+        }
+        return result;
     }
 
     // Method to search for a primary Key in the page using binary search

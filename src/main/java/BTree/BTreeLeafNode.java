@@ -1,7 +1,9 @@
 package BTree;
 
+import Main.DBApp;
+
 class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKey> {
-	protected final static int LEAFORDER = 4;
+	protected final static int LEAFORDER = DBApp.nodeOrder;
 	private Object[] values;
 	
 	public BTreeLeafNode() {
@@ -39,6 +41,20 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 			 }
 		}
 		
+		return -1;
+	}
+
+	public int search(TKey key, TValue value) {
+		for (int i = 0; i < this.getKeyCount(); ++i) {
+			int cmpKey = this.getKey(i).compareTo(key);;
+			if (cmpKey == 0 && this.getValue(i).equals(value)) {
+				return i;
+			}
+			else if (cmpKey > 0) {
+				return -1;
+			}
+		}
+
 		return -1;
 	}
 	
@@ -104,6 +120,15 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 		this.deleteAt(index);
 		return true;
 	}
+
+	public boolean delete(TKey key, TValue value) {
+		int index = this.search(key,value);
+		if (index == -1)
+			return false;
+
+		this.deleteAt(index);
+		return true;
+	}
 	
 	private void deleteAt(int index) {
 		int i = index;
@@ -155,5 +180,13 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 		siblingNode.deleteAt(borrowIndex);
 		
 		return borrowIndex == 0 ? sibling.getKey(0) : this.getKey(0);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		for (int i = 0; i < this.getKeyCount(); ++i)
+			s.append("(").append(this.getKey(i)).append(", ").append(this.getValue(i)).append(") ");
+		return s.toString();
 	}
 }

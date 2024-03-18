@@ -158,9 +158,9 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> implements Serializable 
 	protected abstract TKey transferFromSibling(TKey sinkKey, BTreeNode<TKey> sibling, int borrowIndex);
 
 	public String toString() {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < this.getKeyCount(); ++i)
-			s += this.getKey(i) + " ";
-		return s;
+			s.append(this.getKey(i)).append(" ");
+		return s.toString();
 	}
 }

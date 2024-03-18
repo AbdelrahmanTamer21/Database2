@@ -14,6 +14,7 @@ import Exception.DBAppException;
 public class DBApp {
 
 	public static int pageSize = readConfig("MaximumRowsCountinPage");
+	public static int nodeOrder = readConfig("TreeNodeOrder");
 
 	public DBApp( ){
 		init();
@@ -97,6 +98,18 @@ public class DBApp {
 				attr.put(key,type);
 			}
 			Collections.reverse(data);
+			//Make the primary key the first value
+			Comparator<String[]> comparator = new Comparator<String[]>() {
+				@Override
+				public int compare(String[] arr1, String[] arr2) {
+					boolean value1 = Boolean.parseBoolean(arr1[3]);
+					boolean value2 = Boolean.parseBoolean(arr2[3]);
+
+					// Put "true" values before "false" values
+					return Boolean.compare(value2, value1); // Reverse order to put "true" before "false"
+				}
+			};
+			data.sort(comparator);
 			writer.writeAll(data);
 			Table table = new Table(strTableName,attr);
 
@@ -130,6 +143,7 @@ public class DBApp {
 	public void createIndex(String   strTableName,
 							String   strColName,
 							String   strIndexName) throws DBAppException {
+
 
 		throw new DBAppException("not implemented yet");
 	}
@@ -179,13 +193,12 @@ public class DBApp {
 			String strTableName = "Student";
 			DBApp	dbApp = new DBApp( );
 
-			Hashtable htblColNameType = new Hashtable( );
+			Hashtable<String,String> htblColNameType = new Hashtable<>();
 			htblColNameType.put("id", "java.lang.Integer");
 			htblColNameType.put("name", "java.lang.String");
 			htblColNameType.put("gpa", "java.lang.Double");
 			dbApp.createTable( strTableName, "id", htblColNameType );
 			/*
-
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
 			Hashtable htblColNameValue = new Hashtable( );
