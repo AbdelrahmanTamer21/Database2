@@ -3,8 +3,6 @@ package BTree;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
-import Exception.DBAppException;
-import Main.Page;
 
 /**
  * A B+ tree
@@ -55,10 +53,6 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		int index = leaf.search(key);
 		return (index == -1) ? null : leaf.getValue(index);
 	}
-
-	/**
-	 * Get all the pointers that contain the given value.
-	 */
 	
 	/**
 	 * Delete a key and its associated value from the tree.
@@ -106,11 +100,11 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 	public LinkedList<Pointer<TKey,TValue>> searchByRange(TKey min, TKey max){
 		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
 		BTreeLeafNode<TKey, TValue> minNode = this.getLeafNodeForMinVal(min);
-		// Keep going to right sibling and add all the values that fit the range into a linkedList
+		// Keep going to the right sibling and add all the values that fit the range into a linkedList
 		do{
 			for (int i = 0; i < minNode.getKeyCount(); i++) {
 				if(minNode.getKey(i).compareTo(min) >= 0 && minNode.getKey(i).compareTo(max) <= 0){
-					list.add(new Pointer(minNode.getKey(i),minNode.getValue(i)));
+					list.add(new Pointer<>(minNode.getKey(i),minNode.getValue(i)));
 				}
 
 				if(minNode.getKey(i).compareTo(min) < 0 && minNode.getKey(i).compareTo(max) >= 0){
@@ -146,7 +140,6 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 	/**
 	 * Search the leaf node which should contain the specified key
 	 */
-	@SuppressWarnings("unchecked")
 	private BTreeLeafNode<TKey, TValue> findLeafNodeShouldContainKey(TKey key) {
 		BTreeNode<TKey> node = this.root;
 		while (node.getNodeType() == TreeNodeType.InnerNode) {
@@ -160,17 +153,14 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		StringBuilder sb = new StringBuilder();
 		Queue<BTreeNode<TKey>> queue = new LinkedList<>();
 		queue.offer(root);
-		int level = 0;
 
 		while (!queue.isEmpty()) {
 			int levelSize = queue.size();
 
-			boolean firstNodeInLevel = true; // Track if it's the first node in the level
-
 			for (int i = 0; i < levelSize; i++) {
 				BTreeNode<TKey> node = queue.poll();
 
-				// Append node with border
+				// Append node with a border
 				sb.append("|").append(node.toString().trim());
 
 				if (node.getNodeType() == TreeNodeType.InnerNode) {
@@ -186,14 +176,14 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 			sb.append("|\n");
 		}
 		String[] strings = sb.toString().split("\n");
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		for(int i = 0; i<strings.length;i++){
 			strings[i] = (" ").repeat((strings[strings.length-1].length()-strings[i].length())/2) + strings[i];
 			strings[i] = "Level " + i + ": " + strings[i];
-			result += strings[i] + "\n";
+			result.append(strings[i]).append("\n");
 		}
 
-		return result;
+		return result.toString();
 	}
 
 	//Method to serialize the B+ tree
@@ -201,7 +191,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 	public static void serialize(BTree bTree, String tableName, String columnName) {
 		try {
 			//you may also write this verbosely as
-			// FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+			// FileOutputStream = new FileOutputStream(fileName);
 			FileOutputStream fileOutputStream = new FileOutputStream( "Indices/" + tableName + "/" + columnName + "Index.ser");
 
 			ObjectOutputStream objOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -263,16 +253,16 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		data = String.valueOf(bTree.search("10"));
 		System.out.println(data);
 
-		System.out.println(bTree.toString());
+		System.out.println(bTree);
 		LinkedList<Pointer> list = bTree.searchByRange("1", "14");
-		for (int i = 0; i < list.size(); i++) {
-			System.out.println(list.get(i).getKey() + ", " + list.get(i).getValue());
+		for (Pointer pointer : list) {
+			System.out.println(pointer.getKey() + ", " + pointer.getValue());
 		}
 
 
 		serialize(bTree,"Student","gpa");
 		BTree bTree1 = deserialize("Student","gpa");
 		System.out.println(bTree1.indexName);
-		System.out.println(bTree1.toString());
+		System.out.println(bTree1);
 	}
 }

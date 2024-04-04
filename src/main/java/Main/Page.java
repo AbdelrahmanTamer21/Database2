@@ -1,21 +1,18 @@
 package Main;
 
-import java.io.*;
-import java.util.*;
 import Exception.DBAppException;
-import Utilities.Serializer;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class Page implements Serializable {
-    private final String tableName;
     private int serial;
     private Vector<Tuple> tuples;
     private final int maxSize = DBApp.pageSize;
 
-    public Page(Vector<Tuple> tuples, String tableName, int serial) {
+    public Page(Vector<Tuple> tuples, int serial) {
         this.tuples = tuples;
-        this.tableName = tableName;
         this.serial = serial;
-        Serializer.serializePage(this,tableName, serial);
     }
 
     public Vector<Tuple> getTuples(){
@@ -73,6 +70,11 @@ public class Page implements Serializable {
     // Method to insert a new tuple in the page with checks over the types of the values
     public void insert(Hashtable<String,Object> values, LinkedHashMap<String,String> attributes, String primaryKey) throws DBAppException {
         //iterate over the attributes and check if the value is of the same type
+        checkDataTypes(values, attributes);
+        this.addTuple(new Tuple(values,primaryKey));
+    }
+
+    private void checkDataTypes(Hashtable<String, Object> values, LinkedHashMap<String, String> attributes) throws DBAppException {
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
             String key = entry.getKey();
             String type = entry.getValue();
@@ -85,28 +87,15 @@ public class Page implements Serializable {
                 e.printStackTrace();
             }
         }
-        this.addTuple(new Tuple(values,primaryKey));
     }
 
     public Hashtable<String, Object> update(Object primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
         int indexToUpdate = binarySearchString(primaryKey);
-        int i = 0;
         //iterate over the attributes and check if the value is of the same type
-        for(Map.Entry<String, String> entry : attributes.entrySet()) {
-            String key = entry.getKey();
-            String type = entry.getValue();
-            try {
-                Class<?> cls = Class.forName(type);
-                if(!cls.isInstance(values.get(key))) {
-                    throw new DBAppException("Wrong type");
-                }
-            }catch (ClassNotFoundException e){
-                e.printStackTrace();
-            }
-        }
+        checkDataTypes(values, attributes);
         Tuple tuple = tuples.get(indexToUpdate);
-        tuples.get(indexToUpdate).setValues(values);
-        return tuples.get(indexToUpdate).getValues();
+        tuple.setValues(values);
+        return tuple.getValues();
     }
 
     public Tuple delete(Object primaryKey) throws DBAppException {
@@ -125,6 +114,32 @@ public class Page implements Serializable {
         while (low <= high) {
             int mid = low + (high - low) / 2;
             Object midValue = tuples.get(mid).getPrimaryKeyValue();
+            int cmp = switch (key.getClass().getSimpleName()) {
+                case "Integer" -> Integer.compare((int) key, (int) midValue);
+                case "String" -> ((String) key).compareTo((String) midValue);
+                case "Double" -> Double.compare((double) key, (double) midValue);
+                default -> throw new IllegalStateException("Unexpected value: " + key.getClass().getSimpleName());
+            };
+
+            if (cmp < 0) {
+                high = mid - 1;
+            } else if (cmp > 0) {
+                low = mid + 1;
+            } else {
+                return mid; // key found
+            }
+        }
+
+        return -1;
+    }
+
+    public int binarySearchByCol(Object key, String colName){
+        int low = 0;
+        int high = tuples.size() - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            Object midValue = tuples.get(mid).getValues().get(colName);
             int cmp = switch (key.getClass().getSimpleName()) {
                 case "Integer" -> Integer.compare((int) key, (int) midValue);
                 case "String" -> ((String) key).compareTo((String) midValue);

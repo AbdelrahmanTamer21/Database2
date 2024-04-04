@@ -62,7 +62,6 @@ public class Table implements Serializable {
         if(!bTrees.isEmpty()){
             for (String bTree : bTrees) {
                 String colName = bTree.replace("Index.ser","");
-                String type = attributes.get(colName);
                 BTree bTree1 = BTree.deserialize(strTableName,colName);
 
                 createIndex(colName, bTree1.getIndexName());
@@ -78,7 +77,7 @@ public class Table implements Serializable {
         List<Page> pages = getPages(tableName);
         if(pageNames.isEmpty()){
             // Create a new page and insert the new tuple in it
-            Page page = new Page(new Vector<>(),tableName,1);
+            Page page = new Page(new Vector<>(),1);
             page.insert(htblColNameValue, attributes, primaryKey);
             pageNames.add(tableName + "1.ser");
             Serializer.serializePage(page,tableName,1);
@@ -130,23 +129,23 @@ public class Table implements Serializable {
     // Method to update a certain tuple
     public void updateTuple(String primaryKey,Hashtable<String,Object> values) throws DBAppException {
         List<Page> pages = getPages(tableName);
-        int pageToUpdateIn = 0;
-        Hashtable<String, Object> data = new Hashtable<>();
+        int pageToUpdateIn;
+        Hashtable<String, Object> data;
         switch (attributes.get(this.primaryKey)){
             case "java.lang.String" -> {
-                pageToUpdateIn = findPageToUpdateIn(pages, (String) primaryKey);
+                pageToUpdateIn = findPageForCertainValue(pages, primaryKey);
                 data = pages.get(pageToUpdateIn-1).update(primaryKey, values, attributes);
             }
             case "java.lang.Integer" -> {
-                pageToUpdateIn = findPageToUpdateIn(pages, Integer.parseInt((String) primaryKey));
+                pageToUpdateIn = findPageForCertainValue(pages, Integer.parseInt(primaryKey));
                 data = pages.get(pageToUpdateIn-1).update(Integer.parseInt(primaryKey), values, attributes);
             }
             case "java.lang.Double" -> {
-                pageToUpdateIn = findPageToUpdateIn(pages, Double.parseDouble((String) primaryKey));
+                pageToUpdateIn = findPageForCertainValue(pages, Double.parseDouble(primaryKey));
                 data = pages.get(pageToUpdateIn-1).update(Double.parseDouble(primaryKey), values, attributes);
             }
             default -> throw new IllegalStateException("Unexpected value: " + attributes.get(this.primaryKey));
-        };
+        }
         Serializer.serializePage(pages.get(pageToUpdateIn-1),tableName,pages.get(pageToUpdateIn-1).getSerial());
 
         if(!bTrees.isEmpty()){
@@ -181,8 +180,9 @@ public class Table implements Serializable {
     // Method to delete tuples
     public void deleteTuples(Hashtable<String, Object> values) throws DBAppException {
         ArrayList<Object> results = new ArrayList<>();
+        List<Page> pages = getPages(tableName);
         for (Map.Entry<String, Object> entry : values.entrySet()) {
-            ArrayList<Object> satisfyingTuples = findTuplesSatisfyingCondition(entry);
+            ArrayList<Object> satisfyingTuples = findTuplesSatisfyingCondition(entry, pages);
             if (satisfyingTuples.isEmpty()) {
                 return;
             }
@@ -197,19 +197,36 @@ public class Table implements Serializable {
         }
     }
 
-    private ArrayList<Object> findTuplesSatisfyingCondition(Map.Entry<String,Object> entry) throws DBAppException {
-        List<Page> pages = getPages(tableName);
+    private ArrayList<Object> findTuplesSatisfyingCondition(Map.Entry<String,Object> entry, List<Page> pages) {
         ArrayList<Object> satisfyingTuples = new ArrayList<>();
         if(doesIndexExist(tableName,entry.getKey())){
             switch (attributes.get(entry.getKey())) {
                 case "java.lang.String" -> {
                     BTree<String, Integer> bTree = BTree.deserialize(tableName, entry.getKey());
+                    LinkedList<Pointer<String, Integer>> pointers = bTree.searchByRange((String) entry.getValue(), (String) entry.getValue());
+                    for (Pointer<String, Integer> pointer : pointers) {
+                        Page page = pages.get(pointer.getValue()-1);
+                        Tuple tuple = page.getTuples().get(page.binarySearchByCol(entry.getValue(),entry.getKey()));
+                        satisfyingTuples.add(tuple.getPrimaryKeyValue());
+                    }
                 }
                 case "java.lang.Integer" -> {
                     BTree<Integer, Integer> bTree = BTree.deserialize(tableName, entry.getKey());
+                    LinkedList<Pointer<Integer, Integer>> pointers = bTree.searchByRange((Integer) entry.getValue(), (Integer) entry.getValue());
+                    for (Pointer<Integer, Integer> pointer : pointers) {
+                        Page page = pages.get(pointer.getValue()-1);
+                        Tuple tuple = page.getTuples().get(page.binarySearchByCol(entry.getValue(),entry.getKey()));
+                        satisfyingTuples.add(tuple.getPrimaryKeyValue());
+                    }
                 }
                 case "java.lang.Double" -> {
                     BTree<Double, Integer> bTree = BTree.deserialize(tableName, entry.getKey());
+                    LinkedList<Pointer<Double, Integer>> pointers = bTree.searchByRange((Double) entry.getValue(), (Double) entry.getValue());
+                    for (Pointer<Double, Integer> pointer : pointers) {
+                        Page page = pages.get(pointer.getValue()-1);
+                        Tuple tuple = page.getTuples().get(page.binarySearchByCol(entry.getValue(),entry.getKey()));
+                        satisfyingTuples.add(tuple.getPrimaryKeyValue());
+                    }
                 }
             }
         }else {
@@ -238,7 +255,7 @@ public class Table implements Serializable {
     // Method to delete a tuple
     public void deleteTuple(Object primaryKeyVal) throws DBAppException {
         List<Page> pages = getPages(tableName);
-        int pageToDeleteFrom = findPageToDeleteFrom(pages, primaryKeyVal);
+        int pageToDeleteFrom = findPageForCertainValue(pages, primaryKeyVal);
         Page page = pages.get(pageToDeleteFrom-1);
         Vector<Tuple> tuples = page.getTuples();
         Tuple tuple = null;
@@ -270,7 +287,6 @@ public class Table implements Serializable {
             }
         }
         size--;
-        pageToDeleteFrom = findPageForCertainValue(pages, primaryKeyVal);
         if(!bTrees.isEmpty()){
             for (String bTree : bTrees) {
                 String colName = bTree.replace("Index.ser","");
@@ -295,60 +311,6 @@ public class Table implements Serializable {
                 }
             }
         }
-    }
-
-    // return the serial of the page to delete the tuple from
-    public int findPageToDeleteFrom(List<Page> pages, Object primaryKey){
-        int low = 1;
-        int high = pages.size() - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            Page currentPage = pages.get(mid);
-
-            // Compare the new string with the first value in the vector of current page
-            Tuple tuple = currentPage.getTuples().get(0);
-            int comparisonResult = comparePrimaryKey(primaryKey, tuple);
-
-            // If primaryKey is less than or equal to the first value, go left
-            if (comparisonResult < 0) {
-                return mid;
-            }
-            // If primaryKey is greater, go right
-            else {
-                low = mid + 1;
-            }
-        }
-        // If not found, return the last page
-        return pages.size();
-    }
-    // return the serial of the page where the tuple to be updated is at
-    public int findPageToUpdateIn(List<Page> pages, Object primaryKey){
-        int low = 1;
-        int high = pages.size() - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            Page currentPage = pages.get(mid);
-
-            if(currentPage.isEmpty()){
-                return mid+1;
-            }
-            // Compare the new string with the first value in the vector of current page
-            Tuple tuple = currentPage.getTuples().get(0);
-            int comparisonResult = comparePrimaryKey(primaryKey, tuple);
-
-            // If newPrimaryKey is less than or equal to the first value, go left
-            if (comparisonResult < 0) {
-                return mid;
-            }
-            // If newString is greater, go right
-            else {
-                low = mid + 1;
-            }
-        }
-        // If not found, return the last page
-        return pages.size();
     }
 
     // return the serial of the page to insert the new tuple in
@@ -480,7 +442,7 @@ public class Table implements Serializable {
         }
         // If no page has space, create a new page and insert the new string
         int newPageId = pages.size() + 1; // Assuming page ids start from 1
-        Page newPage = new Page(new Vector<>(),tableName, newPageId); // Assuming max size of 10 for new pages
+        Page newPage = new Page(new Vector<>(), newPageId);
         newPage.insert(values, attributes, primaryKey);
         Serializer.serializePage(newPage,tableName,newPageId);
         pages.add(newPage);
@@ -539,8 +501,8 @@ public class Table implements Serializable {
                     }
                 }
                 data.sort((o1, o2) -> {
-                    Double d1 = Double.valueOf(o1.getKey());
-                    Double d2 = Double.valueOf(o2.getKey());
+                    Double d1 = o1.getKey();
+                    Double d2 = o2.getKey();
                     return d1.compareTo(d2);
                 });
                 BTree<Double, Integer> bTree = new BTree<Double, Integer>(indexName,(!Objects.equals(primaryKey, colName)));
@@ -615,7 +577,7 @@ public class Table implements Serializable {
         System.out.println("Done");
 
         htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("id", Integer.valueOf(2343444));
+        htblColNameValue.put("id", 2343444);
         try {
             dbApp.deleteFromTable("Student", htblColNameValue);
         } catch (DBAppException e) {
@@ -623,7 +585,7 @@ public class Table implements Serializable {
         }
 
         htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("id", Integer.valueOf(2343446));
+        htblColNameValue.put("id", 2343446);
         try {
             dbApp.deleteFromTable("Student", htblColNameValue);
         } catch (DBAppException e) {
@@ -631,9 +593,9 @@ public class Table implements Serializable {
         }
 
         htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("id", Integer.valueOf(2343446));
+        htblColNameValue.put("id", 2343446);
         htblColNameValue.put("name", "Omar");
-        htblColNameValue.put("gpa", Double.valueOf(0.95));
+        htblColNameValue.put("gpa", 0.95);
         try {
             dbApp.insertIntoTable("Student", htblColNameValue);
         } catch (DBAppException e) {
@@ -645,17 +607,17 @@ public class Table implements Serializable {
         table = Serializer.deserializeTable("Student");
         table.printTable();
 
+        /*
         try {
             System.out.println();
             htblColNameValue = new Hashtable<>();
             htblColNameValue.put("name", "Omar");
+            htblColNameValue.put("gpa", 0.95);
             dbApp.deleteFromTable("Student", htblColNameValue);
         } catch (DBAppException e) {
             throw new RuntimeException(e);
         }
-
-        table = Serializer.deserializeTable("Student");
-        table.printTable();
+         */
 
         BTree<Double, Integer> bTree= BTree.deserialize("Student","gpa");
         System.out.println(bTree);

@@ -29,7 +29,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 	
 	@Override
 	public int search(TKey key) {
-		int index = 0;
+		int index;
 		for (index = 0; index < this.getKeyCount(); ++index) {
 			int cmp = this.getKey(index).compareTo(key);
 			if (cmp == 0) {
@@ -39,7 +39,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 				return index;
 			}
 		}
-		
+
 		return index;
 	}
 	
@@ -72,7 +72,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 	}
 	
 	/**
-	 * When splits a internal node, the middle key is kicked out and be pushed to parent node.
+	 * When splits an internal node, the middle key is kicked out and be pushed to parent node.
 	 */
 	@Override
 	protected BTreeNode<TKey> split() {
@@ -118,7 +118,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 	/* The codes below are used to support delete operation */
 	
 	private void deleteAt(int index) {
-		int i = 0;
+		int i;
 		for (i = index; i < this.getKeyCount() - 1; ++i) {
 			this.setKey(i, this.getKey(i + 1));
 			this.setChild(i + 1, this.getChild(i + 2));
@@ -160,7 +160,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 		// remove the sink key, keep the left child and abandon the right child
 		this.deleteAt(index);
 		
-		// check whether need to propagate borrow or fusion to parent
+		// check whether you need to propagate borrow or fusion to parent
 		if (this.isUnderflow()) {
 			if (this.getParent() == null) {
 				// current node is root, only remove keys or delete the whole root node
@@ -204,7 +204,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 	protected TKey transferFromSibling(TKey sinkKey, BTreeNode<TKey> sibling, int borrowIndex) {
 		BTreeInnerNode<TKey> siblingNode = (BTreeInnerNode<TKey>)sibling;
 		
-		TKey upKey = null;
+		TKey upKey;
 		if (borrowIndex == 0) {
 			// borrow the first key from right sibling, append it to tail
 			int index = this.getKeyCount();

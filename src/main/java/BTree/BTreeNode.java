@@ -1,7 +1,6 @@
 package BTree;
 
 import java.io.Serializable;
-import java.lang.reflect.TypeVariable;
 
 enum TreeNodeType {
 	InnerNode,
@@ -48,9 +47,9 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> implements Serializable 
 	
 	
 	/**
-	 * Search a key on current node, if found the key then return its position,
+	 * Search a key on the current node, if found the key then return its position,
 	 * otherwise return -1 for a leaf node, 
-	 * return the child node index which should contain the key for a internal node.
+	 * return the child node index which should contain the key for an internal node.
 	 */
 	public abstract int search(TKey key);
 	
@@ -119,8 +118,8 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> implements Serializable 
 		return null;
 	}
 
-	public void setRightSibling(BTreeNode<TKey> silbling) {
-		this.rightSibling = silbling;
+	public void setRightSibling(BTreeNode<TKey> sibling) {
+		this.rightSibling = sibling;
 	}
 	
 	public BTreeNode<TKey> dealUnderflow() {
@@ -140,7 +139,7 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> implements Serializable 
 			return null;
 		}
 		
-		// Can not borrow a key from any sibling, then do fusion with sibling
+		// Cannot borrow a key from any sibling, then do fusion with sibling
 		if (leftSibling != null) {
 			return this.getParent().processChildrenFusion(leftSibling, this);
 		}

@@ -46,7 +46,7 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 
 	public int search(TKey key, TValue value) {
 		for (int i = 0; i < this.getKeyCount(); ++i) {
-			int cmpKey = this.getKey(i).compareTo(key);;
+			int cmpKey = this.getKey(i).compareTo(key);
 			if (cmpKey == 0 && this.getValue(i).equals(value)) {
 				return i;
 			}
@@ -131,7 +131,7 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	}
 	
 	private void deleteAt(int index) {
-		int i = index;
+		int i;
 		for (i = index; i < this.getKeyCount() - 1; ++i) {
 			this.setKey(i, this.getKey(i + 1));
 			this.setValue(i, this.getValue(i + 1));
@@ -155,7 +155,6 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	 * Notice that the key sunk from parent is be abandoned. 
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected void fusionWithSibling(TKey sinkKey, BTreeNode<TKey> rightSibling) {
 		BTreeLeafNode<TKey, TValue> siblingLeaf = (BTreeLeafNode<TKey, TValue>)rightSibling;
 		
@@ -172,7 +171,6 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	protected TKey transferFromSibling(TKey sinkKey, BTreeNode<TKey> sibling, int borrowIndex) {
 		BTreeLeafNode<TKey, TValue> siblingNode = (BTreeLeafNode<TKey, TValue>)sibling;
 		

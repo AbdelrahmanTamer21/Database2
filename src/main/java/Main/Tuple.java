@@ -2,11 +2,10 @@ package Main;
 
 import java.io.Serializable;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 
 public class Tuple implements Serializable {
     private Hashtable<String,Object> values;
-    private String primaryKey;
+    private final String primaryKey;
 
     public Tuple(Hashtable<String,Object> values, String primaryKey){
         this.values = values;

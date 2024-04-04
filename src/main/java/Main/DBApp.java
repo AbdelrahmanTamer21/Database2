@@ -58,7 +58,7 @@ public class DBApp {
 	}
 
 
-	// following method creates one table only
+	// Following method creates one table only
 	// strClusteringKeyColumn is the name of the column that will be the primary
 	// key and the clustering column as well. The data type of that column will
 	// be passed in htblColNameType
@@ -68,10 +68,10 @@ public class DBApp {
 							String strClusteringKeyColumn,  
 							Hashtable<String,String> htblColNameType) throws DBAppException {
 
-		// first create file object for file placed at location specified by filepath
+		// first create a file object for file placed at location specified by filepath
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
-		// if file does not exists, then create it
+		// if a file does not exist, then create it
 		try{
 			if (!file.exists()) {
 				file.createNewFile();
@@ -91,7 +91,7 @@ public class DBApp {
 					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
 					CSVWriter.DEFAULT_LINE_END);
 
-			// create a List which contains String array
+			// create a List which contains a String array
 			List<String[]> data = new ArrayList<>();
 			Enumeration<String> e = htblColNameType.keys();
 			LinkedHashMap<String, String> attr = new LinkedHashMap<>();
@@ -116,15 +116,12 @@ public class DBApp {
 			}
 			Collections.reverse(data);
 			//Make the primary key the first value
-			Comparator<String[]> comparator = new Comparator<String[]>() {
-				@Override
-				public int compare(String[] arr1, String[] arr2) {
-					boolean value1 = Boolean.parseBoolean(arr1[3]);
-					boolean value2 = Boolean.parseBoolean(arr2[3]);
+			Comparator<String[]> comparator = (arr1, arr2) -> {
+				boolean value1 = Boolean.parseBoolean(arr1[3]);
+				boolean value2 = Boolean.parseBoolean(arr2[3]);
 
-					// Put "true" values before "false" values
-					return Boolean.compare(value2, value1); // Reverse order to put "true" before "false"
-				}
+				// Put "true" values before "false" values
+				return Boolean.compare(value2, value1); // Reverse order to put "true" before "false"
 			};
 			data.sort(comparator);
 			for (String[] row : data) {
@@ -166,7 +163,7 @@ public class DBApp {
 		}
 	}
 
-	// following method creates a B+tree index 
+	// the following method creates a B+tree index
 	public void createIndex(String   strTableName,
 							String   strColName,
 							String   strIndexName) throws DBAppException {
@@ -182,11 +179,10 @@ public class DBApp {
 			CSVReader reader = new CSVReader(inputFile, ',');
 			List<String[]> csvBody = reader.readAll();
 			// get CSV row column and replace with by using row and column
-			for (int i = 0; i < csvBody.size(); i++) {
-				String[] strArray = csvBody.get(i);
-				if(strArray[0].equals(strTableName) && strArray[1].equals(strColName)){
-					csvBody.get(i)[4] = strIndexName;
-					csvBody.get(i)[5] = "B+Tree";
+			for (String[] strArray : csvBody) {
+				if (strArray[0].equals(strTableName) && strArray[1].equals(strColName)) {
+					strArray[4] = strIndexName;
+					strArray[5] = "B+Tree";
 					break;
 				}
 			}
@@ -220,7 +216,7 @@ public class DBApp {
 
 	// following method updates one row only
 	// htblColNameValue holds the key and new value 
-	// htblColNameValue will not include clustering key as column name
+	// htblColNameValue will not include a clustering key as column name
 	// strClusteringKeyValue is the value to look for to find the row to update.
 	public void updateTable(String strTableName, 
 							String strClusteringKeyValue,
@@ -233,7 +229,7 @@ public class DBApp {
 	}
 
 
-	// following method could be used to delete one or more rows.
+	// The following method could be used to delete one or more rows.
 	// htblColNameValue holds the key and value. This will be used in search 
 	// to identify which rows/tuples to delete. 	
 	// htblColNameValue enteries are ANDED together
@@ -266,34 +262,34 @@ public class DBApp {
 			dbApp.createTable( strTableName, "id", htblColNameType );
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
-			Hashtable htblColNameValue = new Hashtable( );
-			htblColNameValue.put("id", new Integer( 2343432 ));
-			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-			htblColNameValue.put("gpa", new Double( 0.95 ) );
+			Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+			htblColNameValue.put("id", 2343432 );
+			htblColNameValue.put("name", "Ahmed Noor" );
+			htblColNameValue.put("gpa", 0.95);
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 453455 ));
-			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-			htblColNameValue.put("gpa", new Double( 0.95 ) );
+			htblColNameValue.put("id", 453455);
+			htblColNameValue.put("name", "Ahmed Noor");
+			htblColNameValue.put("gpa",  0.95);
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 5674567 ));
-			htblColNameValue.put("name", new String("Dalia Noor" ) );
-			htblColNameValue.put("gpa", new Double( 1.25 ) );
+			htblColNameValue.put("id", 5674567);
+			htblColNameValue.put("name", "Dalia Noor");
+			htblColNameValue.put("gpa",  1.25);
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 23498 ));
-			htblColNameValue.put("name", new String("John Noor" ) );
-			htblColNameValue.put("gpa", new Double( 1.5 ) );
+			htblColNameValue.put("id", 23498);
+			htblColNameValue.put("name", "John Noor");
+			htblColNameValue.put("gpa",  1.5);
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 78452 ));
-			htblColNameValue.put("name", new String("Zaky Noor" ) );
-			htblColNameValue.put("gpa", new Double( 0.88 ) );
+			htblColNameValue.put("id", 78452 );
+			htblColNameValue.put("name", "Zaky Noor");
+			htblColNameValue.put("gpa",  0.88);
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			Table table = Serializer.deserializeTable(strTableName);
@@ -310,7 +306,7 @@ public class DBApp {
 			arrSQLTerms[1]._strTableName =  "Student";
 			arrSQLTerms[1]._strColumnName=  "gpa";
 			arrSQLTerms[1]._strOperator  =  "=";
-			arrSQLTerms[1]._objValue     =  new Double( 1.5 );
+			arrSQLTerms[1]._objValue     =   1.5 );
 
 			String[]strarrOperators = new String[1];
 			strarrOperators[0] = "OR";
