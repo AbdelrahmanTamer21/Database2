@@ -1,6 +1,7 @@
 package Main;
 /** * @author Wael Abouelsaadat */
 
+import Utilities.Serializer;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -16,7 +17,10 @@ public class DBApp {
 	public static int pageSize = readConfig("MaximumRowsCountinPage");
 	public static int nodeOrder = readConfig("TreeNodeOrder");
 
+	private HashSet<String> myTables;
+
 	public DBApp( ){
+		this.myTables = new HashSet<String>();
 		init();
 	}
 
@@ -28,7 +32,8 @@ public class DBApp {
 		pagesDir.mkdir();
 		File indicesDir = new File("Indices");
 		indicesDir.mkdir();
-		
+		File tablesDir = new File("Tables");
+		tablesDir.mkdir();
 	}
 
 	//Read a property from the .config File
@@ -61,11 +66,11 @@ public class DBApp {
 		// first create file object for file placed at location specified by filepath
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
-		if(checkTableExists(strTableName)){
-			throw new DBAppException("Table already exists");
-		}
+//		if(checkTableMetadataExists(strTableName)){
+//			throw new DBAppException("Table already exists");
+//		}
 		try{
-			FileWriter outputFile = new FileWriter(file,true);
+			FileWriter outputFile = new FileWriter(file);
 
 			//create CSVWriter with ',' as separator
 			CSVWriter writer = new CSVWriter(outputFile, ',',
@@ -93,9 +98,8 @@ public class DBApp {
 					throw new DBAppException("Wrong type");
 				}
 
-				//Order is -> Main.Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
+				//Order is -> Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
 				data.add(new String[] {strTableName, key, type, isPrimaryKey, "null", "null"});
-				attr.put(key,type);
 			}
 			Collections.reverse(data);
 			//Make the primary key the first value
@@ -110,18 +114,23 @@ public class DBApp {
 				}
 			};
 			data.sort(comparator);
+			for (String[] row : data) {
+				attr.put(row[1],row[2]);
+			}
 			writer.writeAll(data);
-			Table table = new Table(strTableName,attr);
-
+			Table table = new Table(strTableName,strClusteringKeyColumn,attr);
 			// closing writer connection
 			writer.close();
+
+			myTables.add(strTableName);
+			Serializer.serializeTable(table,strTableName);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
 
-	private boolean checkTableExists(String strTableName){
+	private boolean checkTableMetadataExists(String strTableName){
 		File file = new File("metadata.csv");
 		try{
 			Scanner scanner = new Scanner(file);
@@ -138,14 +147,20 @@ public class DBApp {
 		}
 		return false;
 	}
+	private void checkTableExits(String strTableName) throws DBAppException {
+		if (!myTables.contains(strTableName)){
+			throw new DBAppException("Table does not exist");
+		}
+	}
 
 	// following method creates a B+tree index 
 	public void createIndex(String   strTableName,
 							String   strColName,
 							String   strIndexName) throws DBAppException {
 
-
-		throw new DBAppException("not implemented yet");
+		checkTableExits(strTableName);
+		Table table = Serializer.deserializeTable(strTableName);
+		table.createIndex(strColName,strIndexName);
 	}
 
 
@@ -153,7 +168,10 @@ public class DBApp {
 	// htblColNameValue must include a value for the primary key
 	public void insertIntoTable(String strTableName, 
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException {
-		Table.insertTuple(strTableName, htblColNameValue);
+		checkTableExits(strTableName);
+		Table table = Serializer.deserializeTable(strTableName);
+		table.insertTuple(htblColNameValue);
+		Serializer.serializeTable(table,strTableName);
 	}
 
 
@@ -164,8 +182,11 @@ public class DBApp {
 	public void updateTable(String strTableName, 
 							String strClusteringKeyValue,
 							Hashtable<String,Object> htblColNameValue   )  throws DBAppException {
-	
-		Table.updateTuple(strTableName,strClusteringKeyValue,htblColNameValue);
+
+		checkTableExits(strTableName);
+		Table table = Serializer.deserializeTable(strTableName);
+		table.updateTuple(strClusteringKeyValue,htblColNameValue);
+		Serializer.serializeTable(table,strTableName);
 	}
 
 
@@ -175,8 +196,10 @@ public class DBApp {
 	// htblColNameValue enteries are ANDED together
 	public void deleteFromTable(String strTableName, 
 								Hashtable<String,Object> htblColNameValue) throws DBAppException {
-	
-		Table.deleteTuple(strTableName,htblColNameValue);
+		checkTableExits(strTableName);
+		Table table = Serializer.deserializeTable(strTableName);
+		table.deleteTuples(htblColNameValue);
+		Serializer.serializeTable(table,strTableName);
 	}
 
 

@@ -3,6 +3,7 @@ package Main;
 import java.io.*;
 import java.util.*;
 import Exception.DBAppException;
+import Utilities.Serializer;
 
 public class Page implements Serializable {
     private final String tableName;
@@ -14,7 +15,7 @@ public class Page implements Serializable {
         this.tuples = tuples;
         this.tableName = tableName;
         this.serial = serial;
-        serialize(this,tableName, serial);
+        Serializer.serializePage(this,tableName, serial);
     }
 
     public Vector<Tuple> getTuples(){
@@ -118,12 +119,12 @@ public class Page implements Serializable {
         return getValuesFromTuple(tuple,attributes);
     }
 
-    public void delete(String primaryKey) throws DBAppException {
+    public Tuple delete(String primaryKey) throws DBAppException {
         int index = binarySearchString(primaryKey);
         if(index == -1){
             throw new DBAppException("Primary key not found");
         }
-        tuples.remove(index);
+        return tuples.remove(index);
     }
 
 
@@ -165,45 +166,6 @@ public class Page implements Serializable {
         }
 
         return -1;
-    }
-
-    // Method to serialize the page
-    public static void serialize(Page page,String tableName,int serial) {
-        try {
-            //you may also write this verbosely as
-            // FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-            FileOutputStream fileOutputStream = new FileOutputStream("Pages/" + tableName + "/" + tableName + serial + ".ser");
-
-            ObjectOutputStream objOutputStream = new ObjectOutputStream(fileOutputStream);
-
-            objOutputStream.writeObject(page);
-            //we don't want a memory leak if we can avoid it
-            fileOutputStream.close();
-            objOutputStream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Method to deserialize the page
-    public static Page deserialize(String tableName,int serial){
-        try {
-            FileInputStream fileInputStream = new FileInputStream ("Pages/" + tableName + "/" + tableName + serial +".ser");
-
-            ObjectInputStream  objInputStream = new ObjectInputStream (fileInputStream);
-
-            Page page = (Page) objInputStream.readObject();
-
-            objInputStream.close();
-            fileInputStream.close();
-
-            return page;
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
     }
 
     // Method to check if this value already exists in the page
