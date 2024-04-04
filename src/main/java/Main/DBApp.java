@@ -2,12 +2,10 @@ package Main;
 /** * @author Wael Abouelsaadat */
 
 import Utilities.Serializer;
+import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import Exception.DBAppException;
 
@@ -34,6 +32,13 @@ public class DBApp {
 		indicesDir.mkdir();
 		File tablesDir = new File("Tables");
 		tablesDir.mkdir();
+		File metadata = new File("metadata.csv");
+		try{
+			metadata.delete();
+			metadata.createNewFile();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	//Read a property from the .config File
@@ -66,11 +71,19 @@ public class DBApp {
 		// first create file object for file placed at location specified by filepath
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
-//		if(checkTableMetadataExists(strTableName)){
-//			throw new DBAppException("Table already exists");
-//		}
+		// if file does not exists, then create it
 		try{
-			FileWriter outputFile = new FileWriter(file);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		if(checkTableMetadataExists(strTableName)){
+			throw new DBAppException("Table already exists");
+		}
+		try{
+			FileWriter outputFile = new FileWriter(file,true);
 
 			//create CSVWriter with ',' as separator
 			CSVWriter writer = new CSVWriter(outputFile, ',',
@@ -95,7 +108,7 @@ public class DBApp {
 						&& !Objects.equals(type, "java.lang.String")
 						&& !Objects.equals(type, "java.lang.Double"))
 				{
-					throw new DBAppException("Wrong type");
+					throw new DBAppException("Data type not supported");
 				}
 
 				//Order is -> Table Name, Column Name, Column Type, IsClusteringKey, Index Name, Index Type
@@ -161,6 +174,36 @@ public class DBApp {
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
 		table.createIndex(strColName,strIndexName);
+		Serializer.serializeTable(table,strTableName);
+		File file = new File("metadata.csv");
+		try{
+			FileReader inputFile = new FileReader(file);
+			// Read existing file
+			CSVReader reader = new CSVReader(inputFile, ',');
+			List<String[]> csvBody = reader.readAll();
+			// get CSV row column and replace with by using row and column
+			for (int i = 0; i < csvBody.size(); i++) {
+				String[] strArray = csvBody.get(i);
+				if(strArray[0].equals(strTableName) && strArray[1].equals(strColName)){
+					csvBody.get(i)[4] = strIndexName;
+					csvBody.get(i)[5] = "B+Tree";
+					break;
+				}
+			}
+			reader.close();
+
+			FileWriter outputFile = new FileWriter(file);
+			// Write to CSV file which is open
+			CSVWriter writer = new CSVWriter(outputFile, ',',
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END);
+			writer.writeAll(csvBody);
+			writer.close();
+
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 
@@ -221,7 +264,6 @@ public class DBApp {
 			htblColNameType.put("name", "java.lang.String");
 			htblColNameType.put("gpa", "java.lang.Double");
 			dbApp.createTable( strTableName, "id", htblColNameType );
-			/*
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
 			Hashtable htblColNameValue = new Hashtable( );
@@ -254,7 +296,10 @@ public class DBApp {
 			htblColNameValue.put("gpa", new Double( 0.88 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
+			Table table = Serializer.deserializeTable(strTableName);
+			table.printTable();
 
+			/*
 			Main.SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new Main.SQLTerm[2];
 			arrSQLTerms[0]._strTableName =  "Student";

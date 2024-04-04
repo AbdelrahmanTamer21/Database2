@@ -25,11 +25,11 @@ public class Page implements Serializable {
     // Method to add tuple to vector with checks
     public void addTuple(Tuple tuple) throws DBAppException {
         if (tuples.size() < maxSize) {
-            if(!isDuplicate(tuple.getValues()[0])) { //check if the primary key is duplicated
+            if(!isDuplicate(tuple.getPrimaryKeyValue())){ //check if the primary key is duplicated
                 tuples.add(tuple);
                 sort();
             } else {
-                throw new DBAppException("Primary key is duplicated");
+                throw new DBAppException("Primary key already exists");
             }
         } else {
             // Main.Page is full, cannot add more tuples
@@ -43,7 +43,8 @@ public class Page implements Serializable {
     }
 
     public Tuple getLastTuple(){
-        return tuples.get(tuples.size()-1);}
+        return tuples.get(tuples.size()-1);
+    }
 
     public String toString(){
         StringBuilder result = new StringBuilder();
@@ -65,37 +66,30 @@ public class Page implements Serializable {
 
     // Sort the tuples in the page based on the first value in the tuple's string array
     public void sort(){
-        //e3tebarn en awl haga heya el key:)
-        tuples.sort(Comparator.comparing(s -> s.getValues()[0]));
+        //e3tebarn en awl haga heya el key :)
+        tuples.sort(Comparator.comparing(s -> (int) s.getPrimaryKeyValue()));
     }
 
     // Method to insert a new tuple in the page with checks over the types of the values
-    public void insert(Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
-        String[] dataValues = new String[attributes.size()];
-        int i = 0;
+    public void insert(Hashtable<String,Object> values, LinkedHashMap<String,String> attributes, String primaryKey) throws DBAppException {
         //iterate over the attributes and check if the value is of the same type
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
             String key = entry.getKey();
             String type = entry.getValue();
             try {
                 Class<?> cls = Class.forName(type);
-                if(cls.isInstance(values.get(key))) {
-                    String data = String.valueOf(values.get(key));
-                    dataValues[i] = data;
-                    i++;
-                } else {
+                if(!cls.isInstance(values.get(key))) {
                     throw new DBAppException("Wrong type");
                 }
             }catch (ClassNotFoundException e){
                 e.printStackTrace();
             }
         }
-        this.addTuple(new Tuple(dataValues));
+        this.addTuple(new Tuple(values,primaryKey));
     }
 
-    public Hashtable<String, Object> update(String primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
+    public Hashtable<String, Object> update(Object primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
         int indexToUpdate = binarySearchString(primaryKey);
-        String[] dataValues = new String[attributes.size()];
         int i = 0;
         //iterate over the attributes and check if the value is of the same type
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
@@ -103,11 +97,7 @@ public class Page implements Serializable {
             String type = entry.getValue();
             try {
                 Class<?> cls = Class.forName(type);
-                if(cls.isInstance(values.get(key))) {
-                    String data = String.valueOf(values.get(key));
-                    dataValues[i] = data;
-                    i++;
-                } else {
+                if(!cls.isInstance(values.get(key))) {
                     throw new DBAppException("Wrong type");
                 }
             }catch (ClassNotFoundException e){
@@ -115,11 +105,11 @@ public class Page implements Serializable {
             }
         }
         Tuple tuple = tuples.get(indexToUpdate);
-        tuples.get(indexToUpdate).setValues(dataValues);
-        return getValuesFromTuple(tuple,attributes);
+        tuples.get(indexToUpdate).setValues(values);
+        return tuples.get(indexToUpdate).getValues();
     }
 
-    public Tuple delete(String primaryKey) throws DBAppException {
+    public Tuple delete(Object primaryKey) throws DBAppException {
         int index = binarySearchString(primaryKey);
         if(index == -1){
             throw new DBAppException("Primary key not found");
@@ -127,34 +117,20 @@ public class Page implements Serializable {
         return tuples.remove(index);
     }
 
-
-    public Hashtable<String, Object> getValuesFromTuple(Tuple tuple, LinkedHashMap<String, String> attributes){
-        String[] dataValues = tuple.getValues();
-        Hashtable<String, Object> result = new Hashtable<>();
-        int i = 0;
-        //iterate over the attributes and check if the value is of the same type
-        for(Map.Entry<String, String> entry : attributes.entrySet()) {
-            String key = entry.getKey();
-            String type = entry.getValue();
-            switch (type) {
-                case "java.lang.Integer" -> result.put(key, Integer.parseInt(dataValues[i]));
-                case "java.lang.String" -> result.put(key, dataValues[i]);
-                case "java.lang.Double" -> result.put(key, Double.parseDouble(dataValues[i]));
-            }
-            i++;
-        }
-        return result;
-    }
-
     // Method to search for a primary Key in the page using binary search
-    public int binarySearchString(String key){
+    public int binarySearchString(Object key){
         int low = 0;
         int high = tuples.size() - 1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
-            String midValue = tuples.get(mid).getValues()[0];
-            int cmp = key.compareTo(midValue);
+            Object midValue = tuples.get(mid).getPrimaryKeyValue();
+            int cmp = switch (key.getClass().getSimpleName()) {
+                case "Integer" -> Integer.compare((int) key, (int) midValue);
+                case "String" -> ((String) key).compareTo((String) midValue);
+                case "Double" -> Double.compare((double) key, (double) midValue);
+                default -> throw new IllegalStateException("Unexpected value: " + key.getClass().getSimpleName());
+            };
 
             if (cmp < 0) {
                 high = mid - 1;
@@ -169,7 +145,7 @@ public class Page implements Serializable {
     }
 
     // Method to check if this value already exists in the page
-    public boolean isDuplicate(String primaryKey){
+    public boolean isDuplicate(Object primaryKey){
         return binarySearchString(primaryKey) != -1;
     }
 
