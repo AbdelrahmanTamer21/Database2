@@ -21,17 +21,14 @@ public class Page implements Serializable {
 
     // Method to add tuple to vector with checks
     public void addTuple(Tuple tuple) throws DBAppException {
-        if (tuples.size() < maxSize) {
-            if(!isDuplicate(tuple.getPrimaryKeyValue())){ //check if the primary key is duplicated
-                tuples.add(tuple);
-                sort();
-            } else {
-                throw new DBAppException("Primary key already exists");
-            }
-        } else {
-            // Main.Page is full, cannot add more tuples
-            System.out.println("Page is full");
+        if (tuples.size() >= maxSize) {
+            throw new DBAppException("Page is full");
         }
+        if (isDuplicate(tuple.getPrimaryKeyValue())) {
+            throw new DBAppException("Primary key already exists");
+        }
+        tuples.add(tuple);
+        sort();
     }
 
     // Method to remove last tuple from vector and return it for shifting
@@ -61,41 +58,52 @@ public class Page implements Serializable {
         return tuples.size()==maxSize;
     }
 
+    public int getSize(){
+        return tuples.size();
+    }
+
     // Sort the tuples in the page based on the first value in the tuple's string array
     public void sort(){
         //e3tebarn en awl haga heya el key :)
-        tuples.sort(Comparator.comparing(s -> (int) s.getPrimaryKeyValue()));
+        switch (tuples.get(0).getPrimaryKeyValue().getClass().getSimpleName()){
+            case "String" -> tuples.sort(Comparator.comparing(s -> (String) s.getPrimaryKeyValue()));
+            case "Integer" -> tuples.sort(Comparator.comparing(s -> (int) s.getPrimaryKeyValue()));
+            case "Double" -> tuples.sort(Comparator.comparing(s -> (double) s.getPrimaryKeyValue()));
+        }
     }
 
     // Method to insert a new tuple in the page with checks over the types of the values
     public void insert(Hashtable<String,Object> values, LinkedHashMap<String,String> attributes, String primaryKey) throws DBAppException {
         //iterate over the attributes and check if the value is of the same type
-        checkDataTypes(values, attributes);
-        this.addTuple(new Tuple(values,primaryKey));
-    }
-
-    private void checkDataTypes(Hashtable<String, Object> values, LinkedHashMap<String, String> attributes) throws DBAppException {
+        LinkedHashMap<String, Object> data = new LinkedHashMap<>();
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
             String key = entry.getKey();
             String type = entry.getValue();
-            try {
-                Class<?> cls = Class.forName(type);
-                if(!cls.isInstance(values.get(key))) {
-                    throw new DBAppException("Wrong type");
-                }
-            }catch (ClassNotFoundException e){
-                e.printStackTrace();
+            Object value = values.getOrDefault(key, null);
+            if (value != null && !entry.getValue().equals(value.getClass().getName())) {
+                throw new DBAppException("Tuple's data type doesn't match the column's data type");
             }
+            data.put(key, value);
         }
+        this.addTuple(new Tuple(data,primaryKey));
     }
 
-    public Hashtable<String, Object> update(Object primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
-        int indexToUpdate = binarySearchString(primaryKey);
-        //iterate over the attributes and check if the value is of the same type
-        checkDataTypes(values, attributes);
+    public HashMap<String, Object> update(Object primaryKeyVal, String primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
+        int indexToUpdate = binarySearchString(primaryKeyVal);
         Tuple tuple = tuples.get(indexToUpdate);
-        tuple.setValues(values);
-        return tuple.getValues();
+        HashMap<String,Object> data = new HashMap<>(tuple.getValues());
+        //iterate over the attributes and check if the value is of the same type
+        for(Map.Entry<String, String> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            if (!Objects.equals(key, primaryKey) && values.containsKey(key)) {
+                Object value = values.get(key);
+                if (value != null && !entry.getValue().equals(value.getClass().getName())) {
+                    throw new DBAppException("Tuple's data type doesn't match the column's data type");
+                }
+                tuple.getValues().put(key, value);
+            }
+        }
+        return data;
     }
 
     public Tuple delete(Object primaryKey) throws DBAppException {
@@ -114,32 +122,6 @@ public class Page implements Serializable {
         while (low <= high) {
             int mid = low + (high - low) / 2;
             Object midValue = tuples.get(mid).getPrimaryKeyValue();
-            int cmp = switch (key.getClass().getSimpleName()) {
-                case "Integer" -> Integer.compare((int) key, (int) midValue);
-                case "String" -> ((String) key).compareTo((String) midValue);
-                case "Double" -> Double.compare((double) key, (double) midValue);
-                default -> throw new IllegalStateException("Unexpected value: " + key.getClass().getSimpleName());
-            };
-
-            if (cmp < 0) {
-                high = mid - 1;
-            } else if (cmp > 0) {
-                low = mid + 1;
-            } else {
-                return mid; // key found
-            }
-        }
-
-        return -1;
-    }
-
-    public int binarySearchByCol(Object key, String colName){
-        int low = 0;
-        int high = tuples.size() - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            Object midValue = tuples.get(mid).getValues().get(colName);
             int cmp = switch (key.getClass().getSimpleName()) {
                 case "Integer" -> Integer.compare((int) key, (int) midValue);
                 case "String" -> ((String) key).compareTo((String) midValue);

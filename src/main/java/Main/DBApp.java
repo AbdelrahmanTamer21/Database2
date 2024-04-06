@@ -45,7 +45,8 @@ public class DBApp {
 	public static int readConfig(String property){
 		Properties properties = new Properties();
 		try {
-			FileInputStream fileInputStream = new FileInputStream("DBApp.config");
+			ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+			InputStream fileInputStream = classloader.getResourceAsStream("DBApp.config");
 			properties.load(fileInputStream);
 			fileInputStream.close();
 
@@ -67,22 +68,14 @@ public class DBApp {
 	public void createTable(String strTableName, 
 							String strClusteringKeyColumn,  
 							Hashtable<String,String> htblColNameType) throws DBAppException {
-
+		validateTable(strTableName,strClusteringKeyColumn,htblColNameType);
 		// first create a file object for file placed at location specified by filepath
 		// Create the metadata for the table
 		File file = new File("metadata.csv");
-		// if a file does not exist, then create it
 		try{
 			if (!file.exists()) {
 				file.createNewFile();
 			}
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-		if(checkTableMetadataExists(strTableName)){
-			throw new DBAppException("Table already exists");
-		}
-		try{
 			FileWriter outputFile = new FileWriter(file,true);
 
 			//create CSVWriter with ',' as separator
@@ -94,7 +87,6 @@ public class DBApp {
 			// create a List which contains a String array
 			List<String[]> data = new ArrayList<>();
 			Enumeration<String> e = htblColNameType.keys();
-			LinkedHashMap<String, String> attr = new LinkedHashMap<>();
 			while (e.hasMoreElements()) {
 
 				// Getting the key of a particular entry
@@ -124,6 +116,7 @@ public class DBApp {
 				return Boolean.compare(value2, value1); // Reverse order to put "true" before "false"
 			};
 			data.sort(comparator);
+			LinkedHashMap<String, String> attr = new LinkedHashMap<>();
 			for (String[] row : data) {
 				attr.put(row[1],row[2]);
 			}
@@ -134,11 +127,23 @@ public class DBApp {
 
 			myTables.add(strTableName);
 			Serializer.serializeTable(table,strTableName);
-		}catch (Exception e){
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 	}
 
+
+	private void validateTable(String strTableName, String strClusteringKeyColumn, Hashtable<String,String> htblColNameType) throws DBAppException {
+		if(myTables.contains(strTableName)){
+			throw new DBAppException("Table name already exists");
+		}
+		if(strClusteringKeyColumn == null || !htblColNameType.containsKey(strClusteringKeyColumn)){
+			throw new DBAppException("Clustering key is invalid");
+		}
+		if(checkTableMetadataExists(strTableName)){
+			throw new DBAppException("Table already exists");
+		}
+	}
 
 	private boolean checkTableMetadataExists(String strTableName){
 		File file = new File("metadata.csv");
@@ -244,8 +249,41 @@ public class DBApp {
 
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
 									String[]  strarrOperators) throws DBAppException {
-										
+		if(arrSQLTerms.length!=strarrOperators.length-1){
+			throw new DBAppException("Num of operators must be = SQLTerms -1");
+		}
+		if(arrSQLTerms.length>=1) {
+			String tableName =arrSQLTerms[0]._strTableName;
+			checkTableExits(arrSQLTerms[0]._strTableName);
+			Table table = Serializer.deserializeTable(arrSQLTerms[0]._strTableName);
+			assert table != null;
+			//Edge case checks
+			for (SQLTerm arrSQLTerm : arrSQLTerms) {
+				if (!Objects.equals(arrSQLTerm._strTableName, tableName)) {
+					throw new DBAppException("One of the SQLTerms isn't on the same table");
+				}
+				if (!table.getAttributes().containsKey(arrSQLTerm._strColumnName)) {
+					throw new DBAppException("Table doesn't contain a " + arrSQLTerm._strColumnName + " column");
+				}
+				if (arrSQLTerm._objValue.getClass().getName() != table.getAttributes().get(arrSQLTerm._strColumnName)) {
+					throw new DBAppException("Class of the object for the operation doesn't match the column class");
+				}
+				if (!Arrays.asList("<", "<=", ">", ">=", "!=", "=").contains(arrSQLTerm._strOperator)) {
+					throw new DBAppException("The only supported operators are <,<=,>,>=,!=,=");
+				}
+			}
+			for (String operator : strarrOperators){
+				if (!Arrays.asList("AND","OR","XOR").contains(operator.toUpperCase())) {
+					throw new DBAppException("The only supported array operators are AND,OR,XOR");
+				}
+			}
+			table.selectFromTable(arrSQLTerms,strarrOperators);
+		}
 		return null;
+	}
+
+	public HashSet<String> getMyTables(){
+		return myTables;
 	}
 
 
