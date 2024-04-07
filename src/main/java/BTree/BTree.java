@@ -200,6 +200,25 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		return list;
 	}
 
+	public LinkedList<Pointer<TKey,TValue>> getEqualKeys(TKey key){
+		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
+		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
+		do{
+			for (int i = 0; i < currentNode.getKeyCount(); i++) {
+				if(currentNode.getKey(i).compareTo(key) < 0){
+					continue;
+				}
+				if(currentNode.getKey(i).compareTo(key) == 0){
+					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
+				}else {
+					return list;
+				}
+			}
+			currentNode = currentNode.getRightSibling();
+		}while (currentNode != null);
+		return list;
+	}
+
 	public LinkedList<Pointer<TKey,TValue>> computeOperator(TKey key, String operator){
 		return switch (operator) {
 			case "<" -> getLessThanKeys(key);
@@ -207,9 +226,54 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 			case ">" -> getMoreThanKeys(key);
 			case ">=" -> getMoreThanOrEqualKeys(key);
 			case "!=" -> getNotEqualKeys(key);
-			case "=" -> searchByRange(key, key);
+			case "=" -> getEqualKeys(key);
 			default -> new LinkedList<>();
 		};
+	}
+
+	public int getPageNumberForInsert(TKey primaryKey){
+		long startTime1 = System.nanoTime();
+		BTreeLeafNode<TKey, TValue> currentNode = getLeafNodeBeforeKey(primaryKey);
+		long endTime1 = System.nanoTime();
+		//System.out.println((endTime1-startTime1)/1e6 + " " + currentNode + " " + primaryKey);
+		int pageNumber = 0;
+		//startTime1 = System.nanoTime();
+		while (currentNode!=null){
+			for (int i = 0; i < currentNode.getKeyCount(); i++) {
+				if(currentNode.getKey(i).compareTo(primaryKey) < 0){
+					pageNumber = Integer.parseInt(((String)currentNode.getValue(i)).split("-")[0]);
+				} else if(currentNode.getKey(i).compareTo(primaryKey) == 0){
+					return -1;
+				}else {
+					return pageNumber;
+				}
+			}
+			currentNode = currentNode.getRightSibling();
+		}
+		endTime1 = System.nanoTime();
+		//System.out.println((endTime1-startTime1)/1e6 + " " + primaryKey);
+		return 1;
+	}
+
+	private BTreeLeafNode<TKey, TValue> getLeafNodeBeforeKey(TKey key) {
+		BTreeNode<TKey> currentNode = this.root;
+		BTreeLeafNode<TKey, TValue> prevLeafNode = null;
+
+		while (currentNode instanceof BTreeInnerNode<TKey>) {
+			BTreeInnerNode<TKey> innerNode = (BTreeInnerNode<TKey>) currentNode;
+			int childIndex = innerNode.getChildIndex(key);
+			if (childIndex == -1) {
+				// Key is smaller than all children, follow the leftmost child
+				currentNode = innerNode.getChild(0);
+			} else {
+				// Key is greater than or equal to the child at the specified index
+				currentNode = innerNode.getChild(childIndex);
+				if (!(currentNode instanceof BTreeInnerNode)) {
+					prevLeafNode = (BTreeLeafNode<TKey, TValue>) currentNode;
+				}
+			}
+		}
+		return prevLeafNode;
 	}
 
 

@@ -19,6 +19,6 @@ public class Pointer<TKey extends Comparable<TKey>, TValue>{
 
     @Override
     public String toString() {
-        return key + ", " + value;
+        return "(" + key + ", " + value + ")";
     }
 }

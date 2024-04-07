@@ -175,7 +175,7 @@ public class DBApp {
 
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
-		table.createIndex(strColName,strIndexName);
+		table.createIndex(strColName,strIndexName,false);
 		Serializer.serializeTable(table,strTableName);
 		File file = new File("metadata.csv");
 		try{
@@ -249,7 +249,7 @@ public class DBApp {
 
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
 									String[]  strarrOperators) throws DBAppException {
-		if(arrSQLTerms.length!=strarrOperators.length-1){
+		if(arrSQLTerms.length!=strarrOperators.length+1){
 			throw new DBAppException("Num of operators must be = SQLTerms -1");
 		}
 		if(arrSQLTerms.length>=1) {
@@ -263,9 +263,9 @@ public class DBApp {
 					throw new DBAppException("One of the SQLTerms isn't on the same table");
 				}
 				if (!table.getAttributes().containsKey(arrSQLTerm._strColumnName)) {
-					throw new DBAppException("Table doesn't contain a " + arrSQLTerm._strColumnName + " column");
+					throw new DBAppException("The Table doesn't contain a " + arrSQLTerm._strColumnName + " column");
 				}
-				if (arrSQLTerm._objValue.getClass().getName() != table.getAttributes().get(arrSQLTerm._strColumnName)) {
+				if (!arrSQLTerm._objValue.getClass().getName().equals(table.getAttributes().get(arrSQLTerm._strColumnName))) {
 					throw new DBAppException("Class of the object for the operation doesn't match the column class");
 				}
 				if (!Arrays.asList("<", "<=", ">", ">=", "!=", "=").contains(arrSQLTerm._strOperator)) {
@@ -277,7 +277,11 @@ public class DBApp {
 					throw new DBAppException("The only supported array operators are AND,OR,XOR");
 				}
 			}
-			table.selectFromTable(arrSQLTerms,strarrOperators);
+			try {
+				return table.selectFromTable(arrSQLTerms,strarrOperators);
+			}catch (ClassNotFoundException e){
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
@@ -333,24 +337,29 @@ public class DBApp {
 			Table table = Serializer.deserializeTable(strTableName);
 			table.printTable();
 
-			/*
+
 			Main.SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new Main.SQLTerm[2];
+			arrSQLTerms[0] = new SQLTerm();
 			arrSQLTerms[0]._strTableName =  "Student";
 			arrSQLTerms[0]._strColumnName=  "name";
 			arrSQLTerms[0]._strOperator  =  "=";
 			arrSQLTerms[0]._objValue     =  "John Noor";
 
+			arrSQLTerms[1] = new SQLTerm();
 			arrSQLTerms[1]._strTableName =  "Student";
 			arrSQLTerms[1]._strColumnName=  "gpa";
 			arrSQLTerms[1]._strOperator  =  "=";
-			arrSQLTerms[1]._objValue     =   1.5 );
+			arrSQLTerms[1]._objValue     =   1.5;
 
 			String[]strarrOperators = new String[1];
 			strarrOperators[0] = "OR";
 			// select * from Student where name = "John Noor" or gpa = 1.5;
 			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
-			 */
+			System.out.println();
+			while (resultSet.hasNext()){
+				System.out.println(resultSet.next());
+			}
 		}
 		catch(Exception exp){
 			exp.printStackTrace( );

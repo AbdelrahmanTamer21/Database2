@@ -1,15 +1,13 @@
 import BTree.BTree;
 import Exception.DBAppException;
-import Main.DBApp;
-import Main.Page;
-import Main.Table;
-import Main.Tuple;
+import Main.*;
 import Utilities.Serializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +18,7 @@ public class DBAppTest {
 	private static final String id = "id";
 	private static final String name = "name";
 	private static final String gpa = "gpa";
-	private static final String TEST_NAME = "Abdp";
+	private static final String TEST_NAME = "Abdo";
 	private static final double TEST_GPA = 1.8;
 	private static final String STRING_DATA_TYPE_NAME = "java.lang.String";
 	private static final String INTEGER_DATA_TYPE_NAME = "java.lang.Integer";
@@ -136,6 +134,26 @@ public class DBAppTest {
 	@Test
 	void testInsertIntoTable_ManyTuples_ShouldInsertSuccessfully() throws DBAppException {
 
+		for (int i = 1; i < 300; i++) {
+			// Given
+			Hashtable<String, Object> htblColNameValue = createRow(i, TEST_NAME, TEST_GPA);
+
+			// When
+			engine.insertIntoTable(newTableName, htblColNameValue);
+		}
+		// Then
+		Table table = Serializer.deserializeTable(newTableName);
+		assertEquals(2, table.getPageNames().size());
+		Page page = table.getPageAtPosition(1);
+		assertEquals(99, page.getSize());
+		page = table.getPageAtPosition(0);
+		assertTrue(page.isFull());
+	}
+
+	@Test
+	void testInsertIntoTable_ManyTuples_WithIndex_ShouldInsertSuccessfully() throws DBAppException {
+
+		engine.createIndex(newTableName,id,id+"Index");
 		for (int i = 1; i < 300; i++) {
 			// Given
 			Hashtable<String, Object> htblColNameValue = createRow(i, TEST_NAME, TEST_GPA);
@@ -576,7 +594,231 @@ public class DBAppTest {
 		assertTrue(newValueCheck);
 	}
 
+	@Test
+	void testSelectFromTable_TwoORTerms_ShouldSelectSixTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
 
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, id, "<", 2);
+		String[] strArrOperator = new String[] { "OR" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(6,getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectFromTable_TwoANDTerms_ShouldSelectZeroTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, id, "<", 2);
+		String[] strArrOperator = new String[] { "AND" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(0, getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectWithIndex_ThreeANDTermsGreaterThan_ShouldSelectFiveTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+		engine.createIndex(newTableName, gpa, gpa+"Index");
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[3];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "=", TEST_NAME);
+		sqlTerms[2] = new SQLTerm(newTableName, gpa, "=", TEST_GPA);
+		String[] strArrOperator = new String[] { "AND", "AND" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(5, getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectWithIndex_ThreeANDTermsNotEqual_ShouldSelectNineTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+		engine.createIndex(newTableName, gpa, gpa+"Index");
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[3];
+		sqlTerms[0] = new SQLTerm(newTableName, id, "!=", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "=", TEST_NAME);
+		sqlTerms[2] = new SQLTerm(newTableName, gpa, "=", TEST_GPA);
+		String[] strArrOperator = new String[] { "AND", "AND" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(9, getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectWithIndex_ThreeANDTermsLessThanOrEqual_ShouldSelectSixTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+		engine.createIndex(newTableName, gpa, gpa+"Index");
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[3];
+		sqlTerms[0] = new SQLTerm(newTableName, id, "<=", 6);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "=", TEST_NAME);
+		sqlTerms[2] = new SQLTerm(newTableName, gpa, "=", TEST_GPA);
+		String[] strArrOperator = new String[] { "AND", "AND" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(6,getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectWithIndex_FourTermsAndAtEnd_ShouldSelectFiveTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+		engine.createIndex(newTableName, gpa, gpa+"Index");
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[4];
+
+		sqlTerms[0] = new SQLTerm(newTableName, id, "=", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, id, "<=", 6);
+		sqlTerms[2] = new SQLTerm(newTableName, name, "=", TEST_NAME);
+		sqlTerms[3] = new SQLTerm(newTableName, gpa, "=", TEST_GPA);
+		String[] strArrOperator = new String[] { "XOR" ,"AND", "AND" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(5,getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectFromTable_TwoXORTerms_ShouldSelectFiveTuples() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "=", "yehia");
+		String[] strArrOperator = new String[] { "XOR" };
+
+		// Then
+		Iterator it = engine.selectFromTable(sqlTerms, strArrOperator);
+		assertEquals(5,getIteratorSize(it));
+	}
+
+	@Test
+	void testSelectFromTable_WrongNumberOfOperators_ShouldFailSelection() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "=", "yehia");
+		String[] strArrOperator = new String[] { "XOR", "AND" };
+
+		Exception exception = assertThrows(DBAppException.class, () -> {
+			engine.selectFromTable(sqlTerms, strArrOperator);
+		});
+
+		// Then
+		String expectedMessage = "Num of operators must be = SQLTerms -1";
+		String outputMessage = exception.getMessage();
+		assertEquals(expectedMessage,outputMessage);
+	}
+
+	@Test
+	void testSelectFromTable_UnknownArrOperator_ShouldFailSelection() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "=", "yehia");
+		String[] strArrOperator = new String[] { "NOT" };
+
+		Exception exception = assertThrows(DBAppException.class, () -> {
+			engine.selectFromTable(sqlTerms, strArrOperator);
+		});
+
+		// Then
+		String expectedMessage = "The only supported array operators are AND,OR,XOR";
+		String outputMessage = exception.getMessage();
+		assertEquals(expectedMessage,outputMessage);
+	}
+
+	@Test
+	void testSelectFromTable_UnknownOperator_ShouldFailSelection() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, name, "<>", "yehia");
+		String[] strArrOperator = new String[] { "AND" };
+
+		Exception exception = assertThrows(DBAppException.class, () -> {
+			engine.selectFromTable(sqlTerms, strArrOperator);
+		});
+
+		// Then
+		String expectedMessage = "The only supported operators are <,<=,>,>=,!=,=";
+		String outputMessage = exception.getMessage();
+		assertEquals(expectedMessage,outputMessage);
+	}
+
+	@Test
+	void testSelectFromTable_InvalidColumn_ShouldFailSelection() throws DBAppException {
+		// Given
+		for (int i = 1; i <= 10; i++)
+			insertRow(i);
+
+		// When
+		SQLTerm[] sqlTerms = new SQLTerm[2];
+		sqlTerms[0] = new SQLTerm(newTableName, id, ">", 5);
+		sqlTerms[1] = new SQLTerm(newTableName, "salary", "=", "yehia");
+		String[] strArrOperator = new String[] { "AND" };
+
+		Exception exception = assertThrows(DBAppException.class, () -> {
+			engine.selectFromTable(sqlTerms, strArrOperator);
+		});
+
+		// Then
+		String expectedMessage = "The Table doesn't contain a salary column";
+		String outputMessage = exception.getMessage();
+		assertEquals(expectedMessage,outputMessage);
+	}
+
+
+	private int getIteratorSize(Iterator it) {
+		int ret = 0;
+		while (it.hasNext()) {
+			ret++;
+			it.next();
+		}
+		return ret;
+	}
 
 	private static void insertRow(int id) throws DBAppException {
 

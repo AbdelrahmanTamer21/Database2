@@ -78,7 +78,6 @@ public class Page implements Serializable {
         LinkedHashMap<String, Object> data = new LinkedHashMap<>();
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
             String key = entry.getKey();
-            String type = entry.getValue();
             Object value = values.getOrDefault(key, null);
             if (value != null && !entry.getValue().equals(value.getClass().getName())) {
                 throw new DBAppException("Tuple's data type doesn't match the column's data type");
