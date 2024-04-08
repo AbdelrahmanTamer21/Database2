@@ -72,7 +72,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 	}
 	
 	/**
-	 * When splits an internal node, the middle key is kicked out and be pushed to parent node.
+	 * When splits an internal node, the middle key is kicked out and be pushed to the parent node.
 	 */
 	@Override
 	protected BTreeNode<TKey> split() {
@@ -103,7 +103,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 		// insert the new key
 		this.insertAt(index, key, leftChild, rightNode);
 
-		// check whether current node need to be split
+		// check whether the current node needs to be split
 		if (this.isOverflow()) {
 			return this.dealOverflow();
 		}
@@ -136,7 +136,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 			++borrowerChildIndex;
 		
 		if (borrowIndex == 0) {
-			// borrow a key from right sibling
+			// borrow a key from the right sibling
 			TKey upKey = borrower.transferFromSibling(this.getKey(borrowerChildIndex), lender, borrowIndex);
 			this.setKey(borrowerChildIndex, upKey);
 		}
@@ -163,7 +163,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 		// check whether you need to propagate borrow or fusion to parent
 		if (this.isUnderflow()) {
 			if (this.getParent() == null) {
-				// current node is root, only remove keys or delete the whole root node
+				// the current node is root, only remove keys or delete the whole root node
 				if (this.getKeyCount() == 0) {
 					leftChild.setParent(null);
 					return leftChild;
@@ -206,7 +206,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 		
 		TKey upKey;
 		if (borrowIndex == 0) {
-			// borrow the first key from right sibling, append it to tail
+			// borrow the first key from the right sibling, append it to tail
 			int index = this.getKeyCount();
 			this.setKey(index, sinkKey);
 			this.setChild(index + 1, siblingNode.getChild(borrowIndex));			
@@ -216,7 +216,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey>{
 			siblingNode.deleteAt(borrowIndex);
 		}
 		else {
-			// borrow the last key from left sibling, insert it to head
+			// borrow the last key from the left sibling, insert it to head
 			this.insertAt(0, sinkKey, siblingNode.getChild(borrowIndex + 1), this.getChild(0));
 			upKey = siblingNode.getKey(borrowIndex);
 			siblingNode.deleteAt(borrowIndex);

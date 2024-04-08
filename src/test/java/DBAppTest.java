@@ -2,10 +2,10 @@ import BTree.BTree;
 import Exception.DBAppException;
 import Main.*;
 import Utilities.Serializer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testCreateTable_AlreadyExistingName_ShouldFailCreation() throws DBAppException {
+	void testCreateTable_AlreadyExistingName_ShouldFailCreation() {
 		// Given
 		Hashtable<String, String> htblColNameType = new Hashtable<>();
 		htblColNameType.put("id", "java.lang.String");
@@ -67,7 +67,7 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testCreateTable_InvalidPrimaryKeyColumn_ShouldFailCreation() throws DBAppException {
+	void testCreateTable_InvalidPrimaryKeyColumn_ShouldFailCreation() {
 		// Given
 		Hashtable<String, String> htblColNameType = new Hashtable<>();
 		htblColNameType.put("id", "java.lang.String");
@@ -81,7 +81,7 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testCreateTable_InvalidDataType_ShouldFailCreation() throws DBAppException {
+	void testCreateTable_InvalidDataType_ShouldFailCreation() {
 		// Given
 		Hashtable<String, String> htblColNameType = new Hashtable<>();
 		htblColNameType.put("id", "java.lang.Byte");
@@ -97,7 +97,7 @@ public class DBAppTest {
 
 	@Test
 	void testInsertIntoTable_OneTuple_ShouldInsertSuccessfully()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		Hashtable<String, Object> htblColNameValue = createRow(1, TEST_NAME, TEST_GPA);
 
@@ -114,7 +114,7 @@ public class DBAppTest {
 
 	@Test
 	void testInsertIntoTable_MissingColumn_ShouldInsertSuccessfully()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 		htblColNameValue.put(gpa, TEST_GPA);
@@ -153,7 +153,7 @@ public class DBAppTest {
 	@Test
 	void testInsertIntoTable_ManyTuples_WithIndex_ShouldInsertSuccessfully() throws DBAppException {
 
-		engine.createIndex(newTableName,id,id+"Index");
+		engine.createIndex(newTableName, id, id+"Index");
 		for (int i = 1; i < 300; i++) {
 			// Given
 			Hashtable<String, Object> htblColNameValue = createRow(i, TEST_NAME, TEST_GPA);
@@ -214,6 +214,26 @@ public class DBAppTest {
 	}
 
 	@Test
+	void testInsertIntoTable_CorruptedAttributes_ShouldFailInsert()
+			throws DBAppException {
+		// Given
+		Table table = Objects.requireNonNull(Serializer.deserializeTable(newTableName));
+		table.getAttributes().replace(id, "java.lang.String");
+		Serializer.serializeTable(table,newTableName);
+		Hashtable<String, Object> htblColNameValue = createRow(1, TEST_NAME, TEST_GPA);
+
+		// When
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.insertIntoTable(newTableName, htblColNameValue)
+		);
+
+		// Then
+		String expectedMessage = "Table attributes/primaryKey/indexNames does not match the csv file";
+		String outputMessage = exception.getMessage();
+		assertEquals(expectedMessage,outputMessage);
+	}
+
+	@Test
 	void testInsertIntoTable_RepeatedPrimaryKey_ShouldFailInsert()
 			throws DBAppException {
 		// Given
@@ -221,9 +241,9 @@ public class DBAppTest {
 		Hashtable<String, Object> htblColNameValue = createRow(1, "moham", TEST_GPA);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.insertIntoTable(newTableName, htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.insertIntoTable(newTableName, htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Primary key already exists";
@@ -232,7 +252,7 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testInsertIntoTable_InvalidDataType_ShouldFailInsertion() throws DBAppException {
+	void testInsertIntoTable_InvalidDataType_ShouldFailInsertion() {
 		// Given
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 		htblColNameValue.put(name, "Foo");
@@ -240,9 +260,9 @@ public class DBAppTest {
 		htblColNameValue.put(id, 55);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.insertIntoTable(newTableName, htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.insertIntoTable(newTableName, htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Tuple's data type doesn't match the column's data type";
@@ -251,16 +271,16 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testInsertIntoTable_MissingPrimaryKey_ShouldFailInsert() throws DBAppException {
+	void testInsertIntoTable_MissingPrimaryKey_ShouldFailInsert() {
 		// Given
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 		htblColNameValue.put(gpa, TEST_GPA);
 		htblColNameValue.put(name, TEST_NAME);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.insertIntoTable(newTableName, htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.insertIntoTable(newTableName, htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Primary key is not found";
@@ -277,9 +297,9 @@ public class DBAppTest {
 		htblColNameValue.put(id, 55);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.insertIntoTable("someRandomTableName", htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.insertIntoTable("someRandomTableName", htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Table does not exist";
@@ -297,9 +317,9 @@ public class DBAppTest {
 		htblColNameValue.put(id, 3);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.insertIntoTable(newTableName, htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.insertIntoTable(newTableName, htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Tuple contains columns that aren't in the table";
@@ -309,7 +329,7 @@ public class DBAppTest {
 
 	@Test
 	void testUpdateTable_ValidInput_ShouldUpdateSuccessfully()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		insertRow(1);
 		String updatedName = "moham";
@@ -327,16 +347,16 @@ public class DBAppTest {
 
 	@Test
 	void testUpdateTable_PrimaryKeyUpdate_ShouldFailUpdate()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		insertRow(1);
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 		htblColNameValue.put(id, 2);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.updateTable(newTableName, "1", htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.updateTable(newTableName, "1", htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "The input row wants to change the primary key";
@@ -354,9 +374,9 @@ public class DBAppTest {
 		htblColNameValue.put("University", "GUC");
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.updateTable(newTableName, "0", htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.updateTable(newTableName, "0", htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "The Tuple has more columns than the table's columns";
@@ -372,9 +392,9 @@ public class DBAppTest {
 		htblColNameValue.put(gpa, "Foo");
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.updateTable(newTableName, "1", htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.updateTable(newTableName, "1", htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Tuple's data type doesn't match the column's data type";
@@ -390,9 +410,9 @@ public class DBAppTest {
 		htblColNameValue.put(gpa, 1.8);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.updateTable("randomName", "1", htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.updateTable("randomName", "1", htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Table does not exist";
@@ -402,7 +422,7 @@ public class DBAppTest {
 
 	@Test
 	void testDeleteFromTable_OneTuple_ShouldDeleteSuccessfully()
-			throws DBAppException, ClassNotFoundException, IOException, InterruptedException {
+			throws DBAppException {
 		// Given
 		insertRow(1);
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
@@ -418,7 +438,7 @@ public class DBAppTest {
 
 	@Test
 	void testDeleteFromTable_ManyTuplesDeleteOne_ShouldDeleteSuccessfully()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		for (int i = 0; i < 100; i++)
 			insertRow(i);
@@ -435,8 +455,29 @@ public class DBAppTest {
 	}
 
 	@Test
+	void testDeleteFromTable_ManyTuplesDeleteMiddlePage_ShouldDeleteSuccessfully()
+			throws DBAppException {
+		// Given
+		String[] names = new String[] { "s1","s2","s3" };
+		for (int i = 0; i < 500; i++)
+			engine.insertIntoTable(newTableName, createRow(i, names[(i/200)], TEST_GPA));
+		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+		htblColNameValue.put(name, names[1]);
+
+		// When
+		engine.deleteFromTable(newTableName, htblColNameValue);
+
+		// Then
+		Table table = Serializer.deserializeTable(newTableName);
+		assertEquals(2,table.getPageNames().size());
+		assertEquals(300, table.getSize());
+		assertEquals(400, table.getPageAtPosition(1).getTuples().get(0).getPrimaryKeyValue());
+		assertEquals(2, table.getPageAtPosition(1).getSerial());
+	}
+
+	@Test
 	void testDeleteFromTable_ManyTuplesDeleteAll_ShouldDeleteSuccessfully()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		for (int i = 0; i < 100; i++)
 			insertRow(i);
@@ -453,16 +494,16 @@ public class DBAppTest {
 
 	@Test
 	void testDeleteFromTable_InvalidColumnName_ShouldFailDelete()
-			throws DBAppException, ClassNotFoundException, IOException {
+			throws DBAppException {
 		// Given
 		insertRow(1);
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 		htblColNameValue.put("middle_name", "Mohamed");
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.deleteFromTable(newTableName, htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.deleteFromTable(newTableName, htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "The Tuple contains come columns that aren't in the table";
@@ -479,9 +520,9 @@ public class DBAppTest {
 		htblColNameValue.put("gpa", "Foo");
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.deleteFromTable(newTableName, htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.deleteFromTable(newTableName, htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Tuple's data type doesn't match the column's data type";
@@ -491,16 +532,16 @@ public class DBAppTest {
 
 	@Test
 	void testDeleteFromTable_InvalidTable_ShouldFailDelete()
-			throws DBAppException, ClassNotFoundException, IOException, InterruptedException {
+			throws DBAppException {
 		// Given
 		insertRow(1);
 		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 		htblColNameValue.put(id, 1);
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.deleteFromTable("randomTableName", htblColNameValue);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.deleteFromTable("randomTableName", htblColNameValue)
+		);
 
 		// Then
 		String expectedMessage = "Table does not exist";
@@ -518,7 +559,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
-		assertEquals(1,table.getBTrees().get(0).getRootKeyCount());
+		assertEquals(1,table.getBTree(gpa).getRootKeyCount());
 		assertEquals(1, table.getIndices().size());
 	}
 
@@ -528,9 +569,9 @@ public class DBAppTest {
 		engine.createIndex(newTableName, gpa, gpa+"Index");
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.createIndex(newTableName, name, gpa+"Index");
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.createIndex(newTableName, name, gpa+"Index")
+		);
 
 		// Then
 		String expectedMessage = "The index was already created on one of the columns";
@@ -540,14 +581,14 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testCreateIndex_InvalidTableName_ShouldFailCreation() throws DBAppException {
+	void testCreateIndex_InvalidTableName_ShouldFailCreation() {
 
 		// Given
 
 		// When
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.createIndex("Foo", gpa, gpa);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.createIndex("Foo", gpa, gpa)
+		);
 
 		// Then
 		String expectedMessage = "Table does not exist";
@@ -558,7 +599,7 @@ public class DBAppTest {
 	@Test
 	void testInsertionIntoIndex_ValidInput_ShouldInsertIntoIndex() throws DBAppException {
 		// Given
-		engine.createIndex(newTableName, gpa, gpa+"Index.ser");
+		engine.createIndex(newTableName, gpa, gpa+"Index");
 		Table table = Serializer.deserializeTable(newTableName);
 		int oldSize = table.getBTrees().get(0).getRootKeyCount();
 
@@ -575,7 +616,7 @@ public class DBAppTest {
 	@Test
 	void testUpdateTable_ValidInput_ShouldUpdateIndex() throws DBAppException {
 		// Given
-		engine.createIndex(newTableName, gpa, gpa+"Index.ser");
+		engine.createIndex(newTableName, gpa, gpa+"Index");
 		insertRow(3);
 		Table table = Serializer.deserializeTable(newTableName);
 		boolean oldValue = ((BTree<Double, String>)table.getBTrees().get(0)).checkKeyExists(TEST_GPA);
@@ -734,9 +775,9 @@ public class DBAppTest {
 		sqlTerms[1] = new SQLTerm(newTableName, name, "=", "yehia");
 		String[] strArrOperator = new String[] { "XOR", "AND" };
 
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.selectFromTable(sqlTerms, strArrOperator);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.selectFromTable(sqlTerms, strArrOperator)
+		);
 
 		// Then
 		String expectedMessage = "Num of operators must be = SQLTerms -1";
@@ -756,9 +797,9 @@ public class DBAppTest {
 		sqlTerms[1] = new SQLTerm(newTableName, name, "=", "yehia");
 		String[] strArrOperator = new String[] { "NOT" };
 
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.selectFromTable(sqlTerms, strArrOperator);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.selectFromTable(sqlTerms, strArrOperator)
+		);
 
 		// Then
 		String expectedMessage = "The only supported array operators are AND,OR,XOR";
@@ -778,9 +819,9 @@ public class DBAppTest {
 		sqlTerms[1] = new SQLTerm(newTableName, name, "<>", "yehia");
 		String[] strArrOperator = new String[] { "AND" };
 
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.selectFromTable(sqlTerms, strArrOperator);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.selectFromTable(sqlTerms, strArrOperator)
+		);
 
 		// Then
 		String expectedMessage = "The only supported operators are <,<=,>,>=,!=,=";
@@ -800,9 +841,9 @@ public class DBAppTest {
 		sqlTerms[1] = new SQLTerm(newTableName, "salary", "=", "yehia");
 		String[] strArrOperator = new String[] { "AND" };
 
-		Exception exception = assertThrows(DBAppException.class, () -> {
-			engine.selectFromTable(sqlTerms, strArrOperator);
-		});
+		Exception exception = assertThrows(DBAppException.class, () ->
+				engine.selectFromTable(sqlTerms, strArrOperator)
+		);
 
 		// Then
 		String expectedMessage = "The Table doesn't contain a salary column";
@@ -828,7 +869,7 @@ public class DBAppTest {
 	}
 
 	private static Hashtable<String, String> createHashtable(String value1, String value2, String value3) {
-		Hashtable<String, String> hashtable = new Hashtable<String, String>();
+		Hashtable<String, String> hashtable = new Hashtable<>();
 		hashtable.put(id, value1);
 		hashtable.put(name, value2);
 		hashtable.put(gpa, value3);
@@ -843,11 +884,8 @@ public class DBAppTest {
 		return htblColNameValue;
 	}
 
-	/*
 	@AfterEach
 	void deleteCreatedTable() throws DBAppException {
-		Table table = Serializer.deserializeTable(newTableName);
-		FileDeleter.deleteFile(table, FileType.TABLE);
+		engine.deleteTable(newTableName);
 	}
-	*/
 }

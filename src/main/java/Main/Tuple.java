@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 public class Tuple implements Serializable {
-    private LinkedHashMap<String,Object> values;
+    private final LinkedHashMap<String,Object> values;
 
     //Name of the column
     private final String primaryKey;

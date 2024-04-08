@@ -83,7 +83,7 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	
 	
 	/**
-	 * When splits a leaf node, the middle key is kept on new node and be pushed to parent node.
+	 * When splits a leaf node, the middle key is kept on new node and be pushed to the parent node.
 	 */
 	@Override
 	protected BTreeNode<TKey> split() {
@@ -152,7 +152,7 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	}
 	
 	/**
-	 * Notice that the key sunk from parent is be abandoned. 
+	 * Notice that the key sunk from parent is abandoned.
 	 */
 	@Override
 	protected void fusionWithSibling(TKey sinkKey, BTreeNode<TKey> rightSibling) {

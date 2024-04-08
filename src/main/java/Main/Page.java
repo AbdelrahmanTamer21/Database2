@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Page implements Serializable {
     private int serial;
-    private Vector<Tuple> tuples;
+    private final Vector<Tuple> tuples;
     private final int maxSize = DBApp.pageSize;
 
     public Page(Vector<Tuple> tuples, int serial) {
@@ -62,9 +62,8 @@ public class Page implements Serializable {
         return tuples.size();
     }
 
-    // Sort the tuples in the page based on the first value in the tuple's string array
+    // Sort the tuples in the page based on the primary key
     public void sort(){
-        //e3tebarn en awl haga heya el key :)
         switch (tuples.get(0).getPrimaryKeyValue().getClass().getSimpleName()){
             case "String" -> tuples.sort(Comparator.comparing(s -> (String) s.getPrimaryKeyValue()));
             case "Integer" -> tuples.sort(Comparator.comparing(s -> (int) s.getPrimaryKeyValue()));

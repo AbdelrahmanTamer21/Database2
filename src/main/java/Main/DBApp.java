@@ -15,10 +15,10 @@ public class DBApp {
 	public static int pageSize = readConfig("MaximumRowsCountinPage");
 	public static int nodeOrder = readConfig("TreeNodeOrder");
 
-	private HashSet<String> myTables;
+	private final HashSet<String> myTables;
 
 	public DBApp( ){
-		this.myTables = new HashSet<String>();
+		this.myTables = new HashSet<>();
 		init();
 	}
 
@@ -28,8 +28,6 @@ public class DBApp {
 	public void init( ){
 		File pagesDir = new File("Pages");
 		pagesDir.mkdir();
-		File indicesDir = new File("Indices");
-		indicesDir.mkdir();
 		File tablesDir = new File("Tables");
 		tablesDir.mkdir();
 		File metadata = new File("metadata.csv");
@@ -48,6 +46,7 @@ public class DBApp {
 			ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 			InputStream fileInputStream = classloader.getResourceAsStream("DBApp.config");
 			properties.load(fileInputStream);
+			assert fileInputStream != null;
 			fileInputStream.close();
 
 			return Integer.parseInt(properties.getProperty(property));
@@ -165,6 +164,52 @@ public class DBApp {
 	private void checkTableExits(String strTableName) throws DBAppException {
 		if (!myTables.contains(strTableName)){
 			throw new DBAppException("Table does not exist");
+		}else {
+			Table table = Serializer.deserializeTable(strTableName);
+			ArrayList<String[]> row = new ArrayList<>();
+			File file = new File("metadata.csv");
+			try(Scanner scanner = new Scanner(file)){
+				boolean hasNextLine = scanner.hasNextLine();
+				String line = scanner.nextLine();
+				while (hasNextLine) {
+					String[] values = line.split(",");
+					String tableName = values[0];
+					// If the tableName doesn't match, skip this line
+					if (!tableName.equals(strTableName)) {
+						hasNextLine = scanner.hasNextLine();
+						line = scanner.nextLine();
+						continue;
+					}
+					row.add(values);
+					hasNextLine = scanner.hasNextLine();
+					if (!hasNextLine)
+						break;
+					line = scanner.nextLine();
+					// If the next line's tableName doesn't match, break the loop
+					if (!line.startsWith(strTableName))
+						break;
+				}
+				scanner.close();
+				assert table != null;
+				if(table.getAttributes().size()!=row.size()){
+					throw new DBAppException("Table metadata is corrupted");
+				}else {
+					for (String[] values : row) {
+						boolean isPrimaryKey = Boolean.parseBoolean(values[3]);
+						String colName = values[1];
+						String colType = values[2];
+						String indexName = values[4];
+						if ((isPrimaryKey && !table.getPrimaryKey().equals(colName))
+								|| !table.getAttributes().containsKey(colName)
+								|| !table.getAttributes().get(colName).equals(colType)
+								|| (!Objects.equals(indexName, "null") && !table.getIndexNames().contains(indexName))) {
+							throw new DBAppException("Table attributes/primaryKey/indexNames does not match the csv file");
+						}
+					}
+				}
+			}catch (IOException e){
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -175,13 +220,14 @@ public class DBApp {
 
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
+		assert table != null;
 		table.createIndex(strColName,strIndexName,false);
 		Serializer.serializeTable(table,strTableName);
 		File file = new File("metadata.csv");
 		try{
 			FileReader inputFile = new FileReader(file);
 			// Read existing file
-			CSVReader reader = new CSVReader(inputFile, ',');
+			CSVReader reader = new CSVReader(inputFile);
 			List<String[]> csvBody = reader.readAll();
 			// get CSV row column and replace with by using row and column
 			for (String[] strArray : csvBody) {
@@ -214,6 +260,7 @@ public class DBApp {
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException {
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
+		assert table != null;
 		table.insertTuple(htblColNameValue);
 		Serializer.serializeTable(table,strTableName);
 	}
@@ -229,6 +276,7 @@ public class DBApp {
 
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
+		assert table != null;
 		table.updateTuple(strClusteringKeyValue,htblColNameValue);
 		Serializer.serializeTable(table,strTableName);
 	}
@@ -242,6 +290,7 @@ public class DBApp {
 								Hashtable<String,Object> htblColNameValue) throws DBAppException {
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
+		assert table != null;
 		table.deleteTuples(htblColNameValue);
 		Serializer.serializeTable(table,strTableName);
 	}
@@ -277,11 +326,7 @@ public class DBApp {
 					throw new DBAppException("The only supported array operators are AND,OR,XOR");
 				}
 			}
-			try {
-				return table.selectFromTable(arrSQLTerms,strarrOperators);
-			}catch (ClassNotFoundException e){
-				e.printStackTrace();
-			}
+			return table.selectFromTable(arrSQLTerms,strarrOperators);
 		}
 		return null;
 	}
@@ -290,6 +335,22 @@ public class DBApp {
 		return myTables;
 	}
 
+	public void deleteTable(String strTableName) throws DBAppException {
+		if (!myTables.contains(strTableName)){
+			throw new DBAppException("Table does not exist");
+		}
+		Table table = Serializer.deserializeTable(strTableName);
+		assert table != null;
+		File pagesDir = new File("Pages/"+strTableName);
+		File[] files = pagesDir.listFiles();
+		for (File file : files) {
+			file.delete();
+		}
+		pagesDir.delete();
+		File tableFile = new File("Tables/"+strTableName+".ser");
+		tableFile.delete();
+		myTables.remove(strTableName);
+	}
 
 	public static void main( String[] args ){
 	
@@ -335,6 +396,7 @@ public class DBApp {
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			Table table = Serializer.deserializeTable(strTableName);
+			assert table != null;
 			table.printTable();
 
 

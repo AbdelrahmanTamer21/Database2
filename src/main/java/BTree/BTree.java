@@ -1,9 +1,5 @@
 package BTree;
 
-import Main.Tuple;
-
-import java.io.*;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -23,10 +19,6 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		this.root = new BTreeLeafNode<TKey, TValue>();
 		this.indexName = indexName;
 		this.allowDuplicates = allowDuplicates;
-	}
-
-	public String getIndexName() {
-		return this.indexName;
 	}
 
 	public int getRootKeyCount(){
@@ -232,12 +224,11 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 	}
 
 	public int getPageNumberForInsert(TKey primaryKey){
-		long startTime1 = System.nanoTime();
 		BTreeLeafNode<TKey, TValue> currentNode = getLeafNodeBeforeKey(primaryKey);
-		long endTime1 = System.nanoTime();
-		//System.out.println((endTime1-startTime1)/1e6 + " " + currentNode + " " + primaryKey);
 		int pageNumber = 0;
-		//startTime1 = System.nanoTime();
+		if(currentNode != null && currentNode.getRightSibling() == null && currentNode.getKey(currentNode.getKeyCount()-1).compareTo(primaryKey)<0){
+			return Integer.parseInt(((String)currentNode.getValue(currentNode.getKeyCount()-1)).split("-")[0]);
+		}
 		while (currentNode!=null){
 			for (int i = 0; i < currentNode.getKeyCount(); i++) {
 				if(currentNode.getKey(i).compareTo(primaryKey) < 0){
@@ -250,24 +241,35 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 			}
 			currentNode = currentNode.getRightSibling();
 		}
-		endTime1 = System.nanoTime();
-		//System.out.println((endTime1-startTime1)/1e6 + " " + primaryKey);
 		return 1;
+	}
+
+	public void reducePageNumbers(int pageNumber){
+		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
+		do{
+			for (int i = 0; i < currentNode.getKeyCount(); i++) {
+				int num = Integer.parseInt(currentNode.getValue(i).toString().split("-")[0]);
+				String primaryKey = currentNode.getValue(i).toString().split("-")[1];
+				if(num >= pageNumber){
+					currentNode.setValue(i, (TValue) ((num-1)+"-"+primaryKey));
+				}
+			}
+			currentNode = currentNode.getRightSibling();
+		}while (currentNode != null);
 	}
 
 	private BTreeLeafNode<TKey, TValue> getLeafNodeBeforeKey(TKey key) {
 		BTreeNode<TKey> currentNode = this.root;
 		BTreeLeafNode<TKey, TValue> prevLeafNode = null;
 
-		while (currentNode instanceof BTreeInnerNode<TKey>) {
-			BTreeInnerNode<TKey> innerNode = (BTreeInnerNode<TKey>) currentNode;
+		while (currentNode instanceof BTreeInnerNode<TKey> innerNode) {
 			int childIndex = innerNode.getChildIndex(key);
 			if (childIndex == -1) {
 				// Key is smaller than all children, follow the leftmost child
 				currentNode = innerNode.getChild(0);
 			} else {
 				// Key is greater than or equal to the child at the specified index
-				currentNode = innerNode.getChild(childIndex);
+				currentNode = innerNode.getChild(childIndex+1);
 				if (!(currentNode instanceof BTreeInnerNode)) {
 					prevLeafNode = (BTreeLeafNode<TKey, TValue>) currentNode;
 				}
@@ -336,6 +338,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 				BTreeNode<TKey> node = queue.poll();
 
 				// Append node with a border
+				assert node != null;
 				sb.append("|").append(node.toString().trim());
 
 				if (node.getNodeType() == TreeNodeType.InnerNode) {
@@ -361,48 +364,8 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		return result.toString();
 	}
 
-	//Method to serialize the B+ tree
-
-	public static void serialize(BTree bTree, String tableName, String columnName) {
-		try {
-			//you may also write this verbosely as
-			// FileOutputStream = new FileOutputStream(fileName);
-			FileOutputStream fileOutputStream = new FileOutputStream( "Indices/" + tableName + "/" + columnName + "Index.ser");
-
-			ObjectOutputStream objOutputStream = new ObjectOutputStream(fileOutputStream);
-
-			objOutputStream.writeObject(bTree);
-			//we don't want a memory leak if we can avoid it
-			fileOutputStream.close();
-			objOutputStream.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	// Method to deserialize the B+ tree
-	public static <TKey extends Comparable<TKey>> BTree<TKey, String> deserialize(String tableName, String columnName){
-		try {
-			FileInputStream fileInputStream = new FileInputStream ("Indices/" + tableName + "/" + columnName + "Index.ser");
-
-			ObjectInputStream objInputStream = new ObjectInputStream (fileInputStream);
-
-			BTree<TKey, String> bTree = (BTree<TKey, String>) objInputStream.readObject();
-
-			objInputStream.close();
-			fileInputStream.close();
-
-			return bTree;
-
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	public static void main(String[] args){
-		BTree bTree = new BTree("gpaIndex",true);
+		BTree<String,String> bTree = new BTree<String,String>("gpaIndex",true);
 		//123 is the value in the table while 5,12 is the pointer to the 5th page in the 12th index
 		//insert(key,value)
 
@@ -429,18 +392,12 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		System.out.println(data);
 
 		System.out.println(bTree);
-		LinkedList<Pointer> list = bTree.searchByRange("1", "14");
-		for (Pointer pointer : list) {
-			System.out.println(pointer.getKey() + ", " + pointer.getValue());
+		LinkedList<Pointer<String, String>> list = bTree.searchByRange("1", "14");
+		for (Pointer<String,String> pointer : list) {
+			System.out.println(pointer.key() + ", " + pointer.value());
 		}
 
 		bTree.delete("13");
 		System.out.println(bTree);
-
-
-		serialize(bTree,"Student","gpa");
-		BTree bTree1 = deserialize("Student","gpa");
-		System.out.println(bTree1.indexName);
-		System.out.println(bTree1);
 	}
 }

@@ -4,16 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Added Test cases">
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Debug/Optimizations ,finished select">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/SQLTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/SQLTerm.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Tuple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Tuple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/DBApp.config" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/DBApp.config" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -91,7 +93,7 @@
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\Pages\Student" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.DBAppTest.testInsertIntoTable_ManyTuples_WithIndex_ShouldInsertSuccessfully">
+  <component name="RunManager" selected="JUnit.DBAppTest.testInsertIntoTable_CorruptedAttributes_ShouldFailInsert">
     <configuration name="BTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="BTree.BTree" />
       <module name="Database2" />
@@ -118,6 +120,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Table" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main.Table" />
+      <module name="Database2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Main.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="DBAppTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Database2" />
       <option name="PACKAGE_NAME" value="" />
@@ -127,21 +142,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DBAppTest.testInsertIntoTable_ManyTuples_ShouldInsertSuccessfully" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="DBAppTest.testInsertIntoTable_CorruptedAttributes_ShouldFailInsert" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Database2" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="DBAppTest" />
-      <option name="METHOD_NAME" value="testInsertIntoTable_ManyTuples_ShouldInsertSuccessfully" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="DBAppTest.testInsertIntoTable_ManyTuples_WithIndex_ShouldInsertSuccessfully" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Database2" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="DBAppTest" />
-      <option name="METHOD_NAME" value="testInsertIntoTable_ManyTuples_WithIndex_ShouldInsertSuccessfully" />
+      <option name="METHOD_NAME" value="testInsertIntoTable_CorruptedAttributes_ShouldFailInsert" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -149,11 +154,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.DBAppTest.testInsertIntoTable_ManyTuples_WithIndex_ShouldInsertSuccessfully" />
-        <item itemvalue="JUnit.DBAppTest.testInsertIntoTable_ManyTuples_ShouldInsertSuccessfully" />
+        <item itemvalue="JUnit.DBAppTest.testInsertIntoTable_CorruptedAttributes_ShouldFailInsert" />
         <item itemvalue="JUnit.DBAppTest" />
-        <item itemvalue="Application.BTree" />
+        <item itemvalue="Application.Table" />
         <item itemvalue="Application.DBApp" />
+        <item itemvalue="Application.BTree" />
       </list>
     </recent_temporary>
   </component>
@@ -180,7 +185,9 @@
       <workItem from="1712188144963" duration="23269000" />
       <workItem from="1712268514506" duration="159000" />
       <workItem from="1712268686489" duration="4042000" />
-      <workItem from="1712310766557" duration="53287000" />
+      <workItem from="1712310766557" duration="72747000" />
+      <workItem from="1712537371518" duration="14381000" />
+      <workItem from="1712574842761" duration="11067000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -280,7 +287,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712431992311</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Debug/Optimizations ,finished select">
+      <created>1712456629643</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1712456629643</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -312,7 +326,8 @@
     <MESSAGE value="Made a generalized Serializer class for page and table, Changed functions from static to instance to increase performance and not need to fetch attributes from else where, Fixed delete to remove all rows that are under the condition in the hashtable" />
     <MESSAGE value="Optimizations" />
     <MESSAGE value="Added Test cases" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Test cases" />
+    <MESSAGE value="Debug/Optimizations ,finished select" />
+    <option name="LAST_COMMIT_MESSAGE" value="Debug/Optimizations ,finished select" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
