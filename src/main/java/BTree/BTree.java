@@ -2,6 +2,7 @@ package BTree;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Vector;
 
 /**
  * A B+ tree
@@ -12,13 +13,11 @@ import java.util.Queue;
  */
 public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Serializable {
 	private final String indexName;
-	private final boolean allowDuplicates;
 	private BTreeNode<TKey> root;
 
-	public BTree(String indexName, boolean allowDuplicates) {
+	public BTree(String indexName) {
 		this.root = new BTreeLeafNode<TKey, TValue>();
 		this.indexName = indexName;
-		this.allowDuplicates = allowDuplicates;
 	}
 
 	public int getRootKeyCount(){
@@ -30,27 +29,17 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 	 */
 	public void insert(TKey key, TValue value) {
 		//Handle Duplicates
-		if(search(key) != null && !allowDuplicates){
+		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
+		if (search(key) != null) {
+			leaf.insertKey(key, value);
 			return;
 		}
-		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
 		leaf.insertKey(key, value);
-
 		if (leaf.isOverflow()) {
 			BTreeNode<TKey> n = leaf.dealOverflow();
 			if (n != null)
 				this.root = n;
 		}
-	}
-
-	/**
-	 * Search a key value on the tree and return its associated value.
-	 */
-	public TValue search(TKey key) {
-		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
-
-		int index = leaf.search(key);
-		return (index == -1) ? null : leaf.getValue(index);
 	}
 
 	/**
@@ -83,45 +72,27 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 	}
 
 	/**
-	 * Update the value associated with a key.
+	 * Search a key value on the tree and return its associated value.
 	 */
-	public void update(TKey key,TValue newValue){
-		BTreeLeafNode<TKey, TValue> node = this.findLeafNodeShouldContainKey(key);
+	public Vector<TValue> search(TKey key) {
+		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
 
-		int index = node.search(key);
-		node.setValue(index,newValue);
+		int index = leaf.search(key);
+		return (index == -1) ? null : leaf.getValue(index);
 	}
 
 	/**
 	 * Get the range of values in this B+ tree that are between this min and max
 	 */
-
-	public LinkedList<Pointer<TKey,TValue>> searchByRange(TKey min, TKey max){
-		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
-		BTreeLeafNode<TKey, TValue> minNode = this.getLeafNodeForMinVal(min);
-		// Keep going to the right sibling and add all the values that fit the range into a linkedList
-		do{
-			for (int i = 0; i < minNode.getKeyCount(); i++) {
-				if(minNode.getKey(i).compareTo(min) >= 0 && minNode.getKey(i).compareTo(max) <= 0){
-					list.add(new Pointer<>(minNode.getKey(i),minNode.getValue(i)));
-				}
-
-				if(minNode.getKey(i).compareTo(min) < 0 && minNode.getKey(i).compareTo(max) >= 0){
-					return list;
-				}
-			}
-			minNode = minNode.getRightSibling();
-		}while (minNode != null);
-		return list;
-	}
-
 	public LinkedList<Pointer<TKey,TValue>> getLessThanKeys(TKey key){
 		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
 		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
 		do{
 			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				if(currentNode.getKey(i).compareTo(key) < 0){
-					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
+				if(currentNode.getKey(i).compareTo(key) < 0) {
+					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
+					}
 				}else {
 					return list;
 				}
@@ -136,8 +107,10 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
 		do{
 			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				if(currentNode.getKey(i).compareTo(key) <= 0){
-					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
+				if(currentNode.getKey(i).compareTo(key) <= 0) {
+					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
+					}
 				}else {
 					return list;
 				}
@@ -155,8 +128,10 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 				if(currentNode.getKey(i).compareTo(key) == 0){
 					continue;
 				}
-				if(currentNode.getKey(i).compareTo(key) > 0){
-					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
+				if(currentNode.getKey(i).compareTo(key) > 0) {
+					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
+					}
 				}
 			}
 			currentNode = currentNode.getRightSibling();
@@ -169,8 +144,10 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		BTreeLeafNode<TKey, TValue> currentNode = getLeafNodeForMinVal(key);
 		do{
 			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				if(currentNode.getKey(i).compareTo(key) >= 0){
-					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
+				if(currentNode.getKey(i).compareTo(key) >= 0) {
+					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
+					}
 				}
 			}
 			currentNode = currentNode.getRightSibling();
@@ -183,27 +160,10 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
 		do{
 			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				if(currentNode.getKey(i).compareTo(key) != 0){
-					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
-				}
-			}
-			currentNode = currentNode.getRightSibling();
-		}while (currentNode != null);
-		return list;
-	}
-
-	public LinkedList<Pointer<TKey,TValue>> getEqualKeys(TKey key){
-		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
-		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
-		do{
-			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				if(currentNode.getKey(i).compareTo(key) < 0){
-					continue;
-				}
-				if(currentNode.getKey(i).compareTo(key) == 0){
-					list.add(new Pointer<>(currentNode.getKey(i),currentNode.getValue(i)));
-				}else {
-					return list;
+				if(currentNode.getKey(i).compareTo(key) != 0) {
+					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
+					}
 				}
 			}
 			currentNode = currentNode.getRightSibling();
@@ -223,16 +183,37 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		};
 	}
 
+	public LinkedList<Pointer<TKey,TValue>> getEqualKeys(TKey key){
+		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
+		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
+		do{
+			for (int i = 0; i < currentNode.getKeyCount(); i++) {
+				if(currentNode.getKey(i).compareTo(key) < 0){
+					continue;
+				}
+				if(currentNode.getKey(i).compareTo(key) == 0) {
+					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
+					}
+				}else {
+					return list;
+				}
+			}
+			currentNode = currentNode.getRightSibling();
+		}while (currentNode != null);
+		return list;
+	}
+
 	public int getPageNumberForInsert(TKey primaryKey){
 		BTreeLeafNode<TKey, TValue> currentNode = getLeafNodeBeforeKey(primaryKey);
 		int pageNumber = 0;
-		if(currentNode != null && currentNode.getRightSibling() == null && currentNode.getKey(currentNode.getKeyCount()-1).compareTo(primaryKey)<0){
-			return Integer.parseInt(((String)currentNode.getValue(currentNode.getKeyCount()-1)).split("-")[0]);
+		if(currentNode != null && currentNode.getRightSibling() == null && currentNode.getKey(currentNode.getKeyCount()-1).compareTo(primaryKey)<0) {
+			return Integer.parseInt(((Vector<String>) currentNode.getValue(currentNode.getKeyCount() - 1)).get(0).split("-")[0]);
 		}
 		while (currentNode!=null){
 			for (int i = 0; i < currentNode.getKeyCount(); i++) {
 				if(currentNode.getKey(i).compareTo(primaryKey) < 0){
-					pageNumber = Integer.parseInt(((String)currentNode.getValue(i)).split("-")[0]);
+					pageNumber = Integer.parseInt(((Vector<String>) currentNode.getValue(i)).get(0).split("-")[0]);
 				} else if(currentNode.getKey(i).compareTo(primaryKey) == 0){
 					return -1;
 				}else {
@@ -242,20 +223,6 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 			currentNode = currentNode.getRightSibling();
 		}
 		return 1;
-	}
-
-	public void reducePageNumbers(int pageNumber){
-		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
-		do{
-			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				int num = Integer.parseInt(currentNode.getValue(i).toString().split("-")[0]);
-				String primaryKey = currentNode.getValue(i).toString().split("-")[1];
-				if(num >= pageNumber){
-					currentNode.setValue(i, (TValue) ((num-1)+"-"+primaryKey));
-				}
-			}
-			currentNode = currentNode.getRightSibling();
-		}while (currentNode != null);
 	}
 
 	private BTreeLeafNode<TKey, TValue> getLeafNodeBeforeKey(TKey key) {
@@ -364,40 +331,19 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		return result.toString();
 	}
 
-	public static void main(String[] args){
-		BTree<String,String> bTree = new BTree<String,String>("gpaIndex",true);
-		//123 is the value in the table while 5,12 is the pointer to the 5th page in the 12th index
-		//insert(key,value)
-
-		bTree.insert("10","5,12");
-		bTree.insert("10","5,12");
-		bTree.insert("11","5,13");
-		bTree.insert("12","5,14");
-		bTree.insert("13","5,15");
-		bTree.insert("14","5,16");
-		bTree.insert("15","12");
-		bTree.insert("16","12");
-		bTree.insert("17","12");
-		bTree.insert("18","12");
-		bTree.insert("19","12");
-		bTree.insert("20","12");
-		bTree.insert("21","12");
-		bTree.insert("22","12");
-		bTree.insert("23","12");
-		bTree.insert("11.5","12");
-		String data = String.valueOf(bTree.search("10"));
-		System.out.println(data);
-		bTree.update("10","5,11");
-		data = String.valueOf(bTree.search("10"));
-		System.out.println(data);
-
-		System.out.println(bTree);
-		LinkedList<Pointer<String, String>> list = bTree.searchByRange("1", "14");
-		for (Pointer<String,String> pointer : list) {
-			System.out.println(pointer.key() + ", " + pointer.value());
-		}
-
-		bTree.delete("13");
-		System.out.println(bTree);
+	public void reducePageNumbers(int pageNumber){
+		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
+		do{
+			for (int i = 0; i < currentNode.getKeyCount(); i++) {
+				for (int j = 0; j < currentNode.getValue(i).size(); j++) {
+					int num = Integer.parseInt(currentNode.getValue(i).get(j).toString().split("-")[0]);
+					String primaryKey = currentNode.getValue(i).get(j).toString().split("-")[1];
+					if (num >= pageNumber) {
+						currentNode.setValueInVector(i, j, (TValue) ((num - 1) + "-" + primaryKey));
+					}
+				}
+			}
+			currentNode = currentNode.getRightSibling();
+		}while (currentNode != null);
 	}
 }

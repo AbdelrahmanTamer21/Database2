@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
+@SuppressWarnings("unchecked")
 public class Table implements Serializable {
     private final String tableName;
     private final String primaryKey;
@@ -138,15 +139,15 @@ public class Table implements Serializable {
                     default -> 0;
                 };
             }else {
-                serialToInsertIn = findPageToInsert(htblColNameValue.get(primaryKey));
+                serialToInsertIn = findPageForCertainValue(htblColNameValue.get(primaryKey));
             }
+            Page page = Serializer.deserializePage(tableName,serialToInsertIn);
+            assert page != null;
             // If the primary key already exists, it returns -1, throw an exception
-            if(serialToInsertIn == -1){
+            if(page.binarySearchString(htblColNameValue.get(primaryKey)) == -1){
                 throw new DBAppException("Primary key already exists");
             }
             // If the page is full, shift values to other pages, else insert the new tuple in the page
-            Page page = Serializer.deserializePage(tableName,serialToInsertIn);
-            assert page != null;
             if(page.isFull()){
                 shiftValuesToOtherPages(serialToInsertIn,tableName,htblColNameValue);
                 size++;
@@ -180,40 +181,6 @@ public class Table implements Serializable {
                 }
             }
         }
-    }
-
-    // return the serial of the page to insert the new tuple in
-    public int findPageToInsert(Object newPrimaryKey){
-        int low = 1;
-        int high = pageNames.size() - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            Page currentPage = Serializer.deserializePage(tableName,mid+1);
-
-            assert currentPage != null;
-            if(currentPage.isEmpty()){
-                return mid+1;
-            }
-            // Compare the new string with the first value in the vector of the current page
-            Tuple tuple = currentPage.getTuples().get(0);
-            int comparisonResult = comparePrimaryKey(newPrimaryKey, tuple);
-
-            // If the newPrimaryKey is already in the page, return -1
-            if(currentPage.binarySearchString(newPrimaryKey) != -1){
-                return -1;
-            }
-            // If newPrimaryKey is less than or equal to the first value, go left
-            if (comparisonResult < 0) {
-                return mid;
-            }
-            // If newString is greater, go right
-            else {
-                low = mid + 1;
-            }
-        }
-        // If not found, return the last page
-        return pageNames.size();
     }
 
     // Method to shift values to other pages if there's no space
@@ -604,7 +571,7 @@ public class Table implements Serializable {
         }
 
         List<Page> pages = getPages(tableName);
-        BTree<?, String> index = new BTree<String, String>(indexName,(!Objects.equals(primaryKey, colName)));
+        BTree<?, String> index = new BTree<String, String>(indexName);
         switch (attributes.get(colName)) {
             case "java.lang.String" -> {
                 Vector<Pointer<String, String>> data = new Vector<>();
@@ -618,7 +585,7 @@ public class Table implements Serializable {
                     String s2 = String.valueOf(o2.key());
                     return s1.compareTo(s2);
                 });
-                BTree<String, String> bTree = new BTree<String, String>(indexName,(!Objects.equals(primaryKey, colName)));
+                BTree<String, String> bTree = new BTree<String, String>(indexName);
                 for (Pointer<String, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
@@ -636,7 +603,7 @@ public class Table implements Serializable {
                     Integer i2 = o2.key();
                     return i1.compareTo(i2);
                 });
-                BTree<Integer, String> bTree = new BTree<Integer, String>(indexName,(!Objects.equals(primaryKey, colName)));
+                BTree<Integer, String> bTree = new BTree<Integer, String>(indexName);
                 for (Pointer<Integer, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
@@ -654,7 +621,7 @@ public class Table implements Serializable {
                     Double d2 = o2.key();
                     return d1.compareTo(d2);
                 });
-                BTree<Double, String> bTree = new BTree<Double, String>(indexName,(!Objects.equals(primaryKey, colName)));
+                BTree<Double, String> bTree = new BTree<Double, String>(indexName);
                 for (Pointer<Double, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
@@ -825,6 +792,7 @@ public class Table implements Serializable {
                     }
                     return dataSet;
                 }
+
             }
         }else{
             return linearSearch(sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
@@ -893,7 +861,6 @@ public class Table implements Serializable {
         }
     }
 
-    /*
     // Testing, ignore if not needed
     public static void main(String[] args) {
 
@@ -930,7 +897,6 @@ public class Table implements Serializable {
         } catch (DBAppException e) {
             e.printStackTrace();
         }
-
 
         htblColNameValue = new Hashtable<>();
         htblColNameValue.put("name", "Abdo");
@@ -1000,5 +966,4 @@ public class Table implements Serializable {
         bTree= table.getBTree("gpa");
         System.out.println(bTree);
     }
-     */
 }

@@ -125,6 +125,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(1,table.getPageNames().size());
 		Page page = table.getPageAtPosition(0);
 		assertEquals(1, page.getSize());
@@ -143,6 +144,7 @@ public class DBAppTest {
 		}
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(2, table.getPageNames().size());
 		Page page = table.getPageAtPosition(1);
 		assertEquals(99, page.getSize());
@@ -163,6 +165,7 @@ public class DBAppTest {
 		}
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(2, table.getPageNames().size());
 		Page page = table.getPageAtPosition(1);
 		assertEquals(99, page.getSize());
@@ -184,6 +187,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(2, table.getPageNames().size());
 		Page page = table.getPageAtPosition(0);
 		assertTrue(page.isFull());
@@ -204,6 +208,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(3, table.getPageNames().size());
 		Page page = table.getPageAtPosition(0);
 		assertEquals(399,page.getTuples().get(199).getPrimaryKeyValue());
@@ -214,8 +219,7 @@ public class DBAppTest {
 	}
 
 	@Test
-	void testInsertIntoTable_CorruptedAttributes_ShouldFailInsert()
-			throws DBAppException {
+	void testInsertIntoTable_CorruptedAttributes_ShouldFailInsert() {
 		// Given
 		Table table = Objects.requireNonNull(Serializer.deserializeTable(newTableName));
 		table.getAttributes().replace(id, "java.lang.String");
@@ -341,6 +345,7 @@ public class DBAppTest {
 
 		// Then
 		Page page = Serializer.deserializePage(newTableName, 1);
+		assert page != null;
 		Tuple updated = page.getTuples().get(0);
 		assertEquals(updatedName,updated.getValues().get(name));
 	}
@@ -433,6 +438,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertTrue(table.isEmpty());
 	}
 
@@ -451,6 +457,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(99, table.getSize());
 	}
 
@@ -469,6 +476,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(2,table.getPageNames().size());
 		assertEquals(300, table.getSize());
 		assertEquals(400, table.getPageAtPosition(1).getTuples().get(0).getPrimaryKeyValue());
@@ -489,6 +497,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertTrue(table.isEmpty());
 	}
 
@@ -559,6 +568,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertEquals(1,table.getBTree(gpa).getRootKeyCount());
 		assertEquals(1, table.getIndices().size());
 	}
@@ -601,6 +611,7 @@ public class DBAppTest {
 		// Given
 		engine.createIndex(newTableName, gpa, gpa+"Index");
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		int oldSize = table.getBTrees().get(0).getRootKeyCount();
 
 		// When
@@ -608,6 +619,7 @@ public class DBAppTest {
 
 		// Then
 		table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		int newSize = table.getBTrees().get(0).getRootKeyCount();
 		assertEquals(oldSize+1, newSize);
 	}
@@ -619,6 +631,7 @@ public class DBAppTest {
 		engine.createIndex(newTableName, gpa, gpa+"Index");
 		insertRow(3);
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		boolean oldValue = ((BTree<Double, String>)table.getBTrees().get(0)).checkKeyExists(TEST_GPA);
 
 		// When
@@ -628,6 +641,7 @@ public class DBAppTest {
 
 		// Then
 		table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		boolean oldValueCheck = ((BTree<Double, String>)table.getBTrees().get(0)).checkKeyExists(TEST_GPA);
 		boolean newValueCheck = ((BTree<Double, String>)table.getBTrees().get(0)).checkKeyExists(0.7);
 		assertTrue(oldValue);

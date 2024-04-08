@@ -8,15 +8,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeInnerNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/Pointer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Tuple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Tuple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/DBApp.config" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/DBApp.config" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,26 +87,13 @@
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\Pages\Student" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.DBAppTest.testInsertIntoTable_CorruptedAttributes_ShouldFailInsert">
+  <component name="RunManager" selected="JUnit.DBAppTest">
     <configuration name="BTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="BTree.BTree" />
       <module name="Database2" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="BTree.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="DBApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main.DBApp" />
-      <module name="Database2" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Main.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -142,22 +123,10 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DBAppTest.testInsertIntoTable_CorruptedAttributes_ShouldFailInsert" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Database2" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="DBAppTest" />
-      <option name="METHOD_NAME" value="testInsertIntoTable_CorruptedAttributes_ShouldFailInsert" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.DBAppTest.testInsertIntoTable_CorruptedAttributes_ShouldFailInsert" />
         <item itemvalue="JUnit.DBAppTest" />
         <item itemvalue="Application.Table" />
-        <item itemvalue="Application.DBApp" />
         <item itemvalue="Application.BTree" />
       </list>
     </recent_temporary>
@@ -187,7 +156,7 @@
       <workItem from="1712268686489" duration="4042000" />
       <workItem from="1712310766557" duration="72747000" />
       <workItem from="1712537371518" duration="14381000" />
-      <workItem from="1712574842761" duration="11067000" />
+      <workItem from="1712574842761" duration="21827000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -294,7 +263,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712456629643</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Debug/Optimizations ,finished select">
+      <created>1712601199936</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1712601199936</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

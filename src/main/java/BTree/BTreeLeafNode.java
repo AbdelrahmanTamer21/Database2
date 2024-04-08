@@ -2,33 +2,43 @@ package BTree;
 
 import Main.DBApp;
 
+import java.util.Vector;
+
 class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKey> {
 	protected final static int LEAFORDER = DBApp.nodeOrder;
 	private Object[] values;
-	
+
 	public BTreeLeafNode() {
 		this.keys = new Object[LEAFORDER + 1];
 		this.values = new Object[LEAFORDER + 1];
 	}
 
 	@SuppressWarnings("unchecked")
-	public TValue getValue(int index) {
-		return (TValue)this.values[index];
+	public Vector<TValue> getValue(int index) {
+		return (Vector<TValue>) this.values[index];
 	}
 
-	public void setValue(int index, TValue value) {
+	public void setValue(int index, Vector<TValue> value) {
 		this.values[index] = value;
 	}
 
-	public BTreeLeafNode<TKey, TValue> getRightSibling() {
-		return (BTreeLeafNode<TKey, TValue>)this.rightSibling;
+	public void setValueInVector(int index, int valueIndex, TValue value) {
+		((Vector<TValue>) this.values[index]).set(valueIndex, value);
 	}
-	
+
+	public void addValueToVector(int index, TValue value) {
+		((Vector<TValue>) this.values[index]).add(value);
+	}
+
+	public BTreeLeafNode<TKey, TValue> getRightSibling() {
+		return (BTreeLeafNode<TKey, TValue>) this.rightSibling;
+	}
+
 	@Override
 	public TreeNodeType getNodeType() {
 		return TreeNodeType.LeafNode;
 	}
-	
+
 	@Override
 	public int search(TKey key) {
 		for (int i = 0; i < this.getKeyCount(); ++i) {
@@ -45,36 +55,56 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	}
 
 	public int search(TKey key, TValue value) {
-		for (int i = 0; i < this.getKeyCount(); ++i) {
-			int cmpKey = this.getKey(i).compareTo(key);
-			if (cmpKey == 0 && this.getValue(i).equals(value)) {
-				return i;
-			}
-			else if (cmpKey > 0) {
-				return -1;
+		int low = 0;
+		int high = this.getKeyCount() - 1;
+
+		while (low <= high) {
+			int mid = low + (high - low) / 2;
+			int cmp = this.getKey(mid).compareTo(key);
+
+			if (cmp == 0 && this.getValue(mid).contains(value)) {
+				return mid; // Key found
+			} else if (cmp < 0) {
+				low = mid + 1; // Search in the right half
+			} else {
+				high = mid - 1; // Search in the left half
 			}
 		}
 
-		return -1;
+		return -1; // Key not found
 	}
-	
-	
+
+
 	/* The codes below are used to support insertion operation */
-	
+
 	public void insertKey(TKey key, TValue value) {
+		int i = search(key);
+		if (i != -1) {
+			addValueToVector(i, value);
+			return;
+		}
+		int index = 0;
+		while (index < this.getKeyCount() && this.getKey(index).compareTo(key) < 0)
+			++index;
+		Vector<TValue> v = new Vector<>();
+		v.add(value);
+		this.insertAt(index, key, v);
+	}
+
+	public void insertKeyVector(TKey key, Vector<TValue> value) {
 		int index = 0;
 		while (index < this.getKeyCount() && this.getKey(index).compareTo(key) < 0)
 			++index;
 		this.insertAt(index, key, value);
 	}
-	
-	private void insertAt(int index, TKey key, TValue value) {
+
+	private void insertAt(int index, TKey key, Vector<TValue> value) {
 		// move space for the new key
 		for (int i = this.getKeyCount() - 1; i >= index; --i) {
 			this.setKey(i + 1, this.getKey(i));
 			this.setValue(i + 1, this.getValue(i));
 		}
-		
+
 		// insert new key and value
 		this.setKey(index, key);
 		this.setValue(index, value);
@@ -122,10 +152,13 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	}
 
 	public boolean delete(TKey key, TValue value) {
-		int index = this.search(key,value);
+		int index = this.search(key, value);
 		if (index == -1)
 			return false;
-
+		if (this.getValue(index).size() > 1) {
+			this.getValue(index).remove(value);
+			return true;
+		}
 		this.deleteAt(index);
 		return true;
 	}
@@ -173,8 +206,8 @@ class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKe
 	@Override
 	protected TKey transferFromSibling(TKey sinkKey, BTreeNode<TKey> sibling, int borrowIndex) {
 		BTreeLeafNode<TKey, TValue> siblingNode = (BTreeLeafNode<TKey, TValue>)sibling;
-		
-		this.insertKey(siblingNode.getKey(borrowIndex), siblingNode.getValue(borrowIndex));
+
+		this.insertKeyVector(siblingNode.getKey(borrowIndex), siblingNode.getValue(borrowIndex));
 		siblingNode.deleteAt(borrowIndex);
 		
 		return borrowIndex == 0 ? sibling.getKey(0) : this.getKey(0);

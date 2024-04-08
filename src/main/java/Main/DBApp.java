@@ -1,13 +1,13 @@
 package Main;
 /** * @author Wael Abouelsaadat */
 
+import Exception.DBAppException;
 import Utilities.Serializer;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import java.io.*;
 import java.util.*;
-import Exception.DBAppException;
 
 
 public class DBApp {
