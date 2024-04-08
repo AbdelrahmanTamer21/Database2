@@ -144,7 +144,7 @@ public class Table implements Serializable {
             Page page = Serializer.deserializePage(tableName,serialToInsertIn);
             assert page != null;
             // If the primary key already exists, it returns -1, throw an exception
-            if(page.binarySearchString(htblColNameValue.get(primaryKey)) == -1){
+            if(page.binarySearchString(htblColNameValue.get(primaryKey)) != -1){
                 throw new DBAppException("Primary key already exists");
             }
             // If the page is full, shift values to other pages, else insert the new tuple in the page

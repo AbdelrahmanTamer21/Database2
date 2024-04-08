@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Debug/Optimizations ,finished select">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
-    </list>
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -156,7 +149,7 @@
       <workItem from="1712268686489" duration="4042000" />
       <workItem from="1712310766557" duration="72747000" />
       <workItem from="1712537371518" duration="14381000" />
-      <workItem from="1712574842761" duration="21827000" />
+      <workItem from="1712574842761" duration="22203000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -270,7 +263,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712601199936</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;">
+      <created>1712612328738</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1712612328738</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -303,7 +303,8 @@
     <MESSAGE value="Optimizations" />
     <MESSAGE value="Added Test cases" />
     <MESSAGE value="Debug/Optimizations ,finished select" />
-    <option name="LAST_COMMIT_MESSAGE" value="Debug/Optimizations ,finished select" />
+    <MESSAGE value="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
