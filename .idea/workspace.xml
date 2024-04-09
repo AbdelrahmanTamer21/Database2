@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Fixed insert in table for repeated primary key">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Utilities/Serializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Utilities/Serializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -80,7 +89,7 @@
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\Pages\Student" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.DBAppTest">
+  <component name="RunManager" selected="JUnit.DBAppTest.testInsertIntoTable_ManyTuplesCheckPrimaryKey_ShouldInsertSuccessfully">
     <configuration name="BTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="BTree.BTree" />
       <module name="Database2" />
@@ -116,8 +125,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="DBAppTest.testInsertIntoTable_ManyTuplesCheckPrimaryKey_ShouldInsertSuccessfully" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Database2" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="DBAppTest" />
+      <option name="METHOD_NAME" value="testInsertIntoTable_ManyTuplesCheckPrimaryKey_ShouldInsertSuccessfully" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.DBAppTest.testInsertIntoTable_ManyTuplesCheckPrimaryKey_ShouldInsertSuccessfully" />
         <item itemvalue="JUnit.DBAppTest" />
         <item itemvalue="Application.Table" />
         <item itemvalue="Application.BTree" />
@@ -149,7 +169,7 @@
       <workItem from="1712268686489" duration="4042000" />
       <workItem from="1712310766557" duration="72747000" />
       <workItem from="1712537371518" duration="14381000" />
-      <workItem from="1712574842761" duration="22203000" />
+      <workItem from="1712574842761" duration="48846000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -270,7 +290,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712612328738</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Fixed insert in table for repeated primary key">
+      <created>1712612723324</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1712612723324</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -304,7 +331,8 @@
     <MESSAGE value="Added Test cases" />
     <MESSAGE value="Debug/Optimizations ,finished select" />
     <MESSAGE value="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
+    <MESSAGE value="Fixed insert in table for repeated primary key" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed insert in table for repeated primary key" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

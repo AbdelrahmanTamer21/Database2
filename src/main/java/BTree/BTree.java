@@ -61,7 +61,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		while(!flag && leaf != null){
 			flag = leaf.delete(key,value);
 
-			if (leaf.isUnderflow()) {
+			if (flag && leaf.isUnderflow()) {
 				BTreeNode<TKey> n = leaf.dealUnderflow();
 				if (n != null)
 					this.root = n;
@@ -307,6 +307,44 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 				// Append node with a border
 				assert node != null;
 				sb.append("|").append(node.toString().trim());
+
+				if (node.getNodeType() == TreeNodeType.InnerNode) {
+					BTreeInnerNode<TKey> innerNode = (BTreeInnerNode<TKey>) node;
+					for (int j = 0; j <= innerNode.getKeyCount(); j++) {
+						BTreeNode<TKey> child = innerNode.getChild(j);
+						if (child != null) {
+							queue.offer(child);
+						}
+					}
+				}
+			}
+			sb.append("|\n");
+		}
+		String[] strings = sb.toString().split("\n");
+		StringBuilder result = new StringBuilder();
+		for(int i = 0; i<strings.length;i++){
+			strings[i] = (" ").repeat((strings[strings.length-1].length()-strings[i].length())/2) + strings[i];
+			strings[i] = "Level " + i + ": " + strings[i];
+			result.append(strings[i]).append("\n");
+		}
+
+		return result.toString();
+	}
+
+	public String toStringRangeValues() {
+		StringBuilder sb = new StringBuilder();
+		Queue<BTreeNode<TKey>> queue = new LinkedList<>();
+		queue.offer(root);
+
+		while (!queue.isEmpty()) {
+			int levelSize = queue.size();
+
+			for (int i = 0; i < levelSize; i++) {
+				BTreeNode<TKey> node = queue.poll();
+
+				// Append node with a border
+				assert node != null;
+				sb.append("|").append(node.toStringRange().trim());
 
 				if (node.getNodeType() == TreeNodeType.InnerNode) {
 					BTreeInnerNode<TKey> innerNode = (BTreeInnerNode<TKey>) node;

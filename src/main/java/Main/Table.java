@@ -43,9 +43,9 @@ public class Table implements Serializable {
         return size;
     }
     // Method to get all the actual pages of a table
-    private List<Page> getPages(String tableName){
+    public List<Page> getPages(String tableName){
         List<Page> pages = new ArrayList<>();
-        pageNames.sort(String::compareTo);
+        pageNames.sort(Comparator.comparing(s -> Integer.parseInt(s.substring(tableName.length(),s.length()-4))));
         for (String pageName : pageNames) {
             pages.add(Serializer.deserializePage(tableName,Integer.parseInt( pageName.substring(tableName.length(),pageName.length()-4) ) ) );
         }
@@ -69,7 +69,7 @@ public class Table implements Serializable {
         return null;
     }
     public Page getPageAtPosition(int position){
-        pageNames.sort(String::compareTo);
+        pageNames.sort(Comparator.comparing(s -> Integer.parseInt(s.substring(tableName.length(),s.length()-4))));
         String pageName = pageNames.get(position);
         return Serializer.deserializePage(tableName,Integer.parseInt( pageName.substring(tableName.length(),pageName.length()-4) ) );
     }
@@ -143,7 +143,7 @@ public class Table implements Serializable {
             }
             Page page = Serializer.deserializePage(tableName,serialToInsertIn);
             assert page != null;
-            // If the primary key already exists, it returns -1, throw an exception
+            // If the primary key does not exist, it returns -1, throw an exception
             if(page.binarySearchString(htblColNameValue.get(primaryKey)) != -1){
                 throw new DBAppException("Primary key already exists");
             }
@@ -158,26 +158,19 @@ public class Table implements Serializable {
             }
         }
         size++;
-        //int serialToInsertIn = findPageForCertainValue(pages,htblColNameValue.get(primaryKey));
         if(!bTrees.isEmpty()){
             for (int i = 0;i<bTrees.size();i++) {
                 String bTree = bTrees.get(i);
                 String colName = bTree.replace("Index","");
                 String type = attributes.get(colName);
 
-                switch (type){
-                    case "java.lang.String" -> {
-                        BTree<String, String> bTree1 = (BTree<String, String>) indices.get(i);
-                        bTree1.insert((String) htblColNameValue.get(colName),serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
-                    }
-                    case "java.lang.Integer" -> {
-                        BTree<Integer, String> bTree1 = (BTree<Integer, String>) indices.get(i);
-                        bTree1.insert((int) htblColNameValue.get(colName),serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
-                    }
-                    case "java.lang.Double" -> {
-                        BTree<Double, String> bTree1 = (BTree<Double, String>) indices.get(i);
-                        bTree1.insert((double) htblColNameValue.get(colName),serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
-                    }
+                switch (type) {
+                    case "java.lang.String" ->
+                            ((BTree<String, String>) indices.get(i)).insert((String) htblColNameValue.get(colName), serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
+                    case "java.lang.Integer" ->
+                            ((BTree<Integer, String>) indices.get(i)).insert((Integer) htblColNameValue.get(colName), serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
+                    case "java.lang.Double" ->
+                            ((BTree<Double, String>) indices.get(i)).insert((Double) htblColNameValue.get(colName), serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
                 }
             }
         }
@@ -259,17 +252,29 @@ public class Table implements Serializable {
                         switch (attributes.get(key)) {
                             case "java.lang.Integer" -> {
                                 BTree<Integer, String> bTree = (BTree<Integer, String>) getBTree(key);
-                                bTree.delete((Integer)lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
+                                if(key.equals(primaryKey)){
+                                    bTree.delete((Integer)lastTupleData.get(key));
+                                }else {
+                                    bTree.delete((Integer)lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
+                                }
                                 bTree.insert((Integer) values.get(key),page.getSerial() + "-" + values.get(primaryKey));
                             }
                             case "java.lang.String" -> {
                                 BTree<String, String> bTree = (BTree<String, String>) getBTree(key);
-                                bTree.delete((String)lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
+                                if(key.equals(primaryKey)){
+                                    bTree.delete((String) lastTupleData.get(key));
+                                }else {
+                                    bTree.delete((String) lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
+                                }
                                 bTree.insert((String) values.get(key),page.getSerial() + "-" + values.get(primaryKey));
                             }
                             case "java.lang.Double" -> {
                                 BTree<Double, String> bTree = (BTree<Double, String>) getBTree(key);
-                                bTree.delete((Double)lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
+                                if(key.equals(primaryKey)){
+                                    bTree.delete((Double) lastTupleData.get(key));
+                                }else {
+                                    bTree.delete((Double) lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
+                                }
                                 bTree.insert((Double) values.get(key),page.getSerial() + "-" + values.get(primaryKey));
                             }
                         }

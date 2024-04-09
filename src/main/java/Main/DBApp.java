@@ -161,7 +161,7 @@ public class DBApp {
 		}
 		return false;
 	}
-	private void checkTableExits(String strTableName) throws DBAppException {
+	private Table checkTableExits(String strTableName) throws DBAppException {
 		if (!myTables.contains(strTableName)){
 			throw new DBAppException("Table does not exist");
 		}else {
@@ -210,6 +210,7 @@ public class DBApp {
 			}catch (IOException e){
 				e.printStackTrace();
 			}
+			return table;
 		}
 	}
 
@@ -258,13 +259,11 @@ public class DBApp {
 	// htblColNameValue must include a value for the primary key
 	public void insertIntoTable(String strTableName, 
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException {
-		checkTableExits(strTableName);
-		Table table = Serializer.deserializeTable(strTableName);
+		Table table = checkTableExits(strTableName);
 		assert table != null;
 		table.insertTuple(htblColNameValue);
 		Serializer.serializeTable(table,strTableName);
 	}
-
 
 	// following method updates one row only
 	// htblColNameValue holds the key and new value 
@@ -274,8 +273,7 @@ public class DBApp {
 							String strClusteringKeyValue,
 							Hashtable<String,Object> htblColNameValue   )  throws DBAppException {
 
-		checkTableExits(strTableName);
-		Table table = Serializer.deserializeTable(strTableName);
+		Table table = checkTableExits(strTableName);
 		assert table != null;
 		table.updateTuple(strClusteringKeyValue,htblColNameValue);
 		Serializer.serializeTable(table,strTableName);
@@ -288,8 +286,7 @@ public class DBApp {
 	// htblColNameValue enteries are ANDED together
 	public void deleteFromTable(String strTableName, 
 								Hashtable<String,Object> htblColNameValue) throws DBAppException {
-		checkTableExits(strTableName);
-		Table table = Serializer.deserializeTable(strTableName);
+		Table table = checkTableExits(strTableName);
 		assert table != null;
 		table.deleteTuples(htblColNameValue);
 		Serializer.serializeTable(table,strTableName);
@@ -302,9 +299,8 @@ public class DBApp {
 			throw new DBAppException("Num of operators must be = SQLTerms -1");
 		}
 		if(arrSQLTerms.length>=1) {
-			String tableName =arrSQLTerms[0]._strTableName;
-			checkTableExits(arrSQLTerms[0]._strTableName);
-			Table table = Serializer.deserializeTable(arrSQLTerms[0]._strTableName);
+			String tableName = arrSQLTerms[0]._strTableName;
+			Table table = checkTableExits(tableName);
 			assert table != null;
 			//Edge case checks
 			for (SQLTerm arrSQLTerm : arrSQLTerms) {

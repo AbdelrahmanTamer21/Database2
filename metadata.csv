@@ -1,3 +1,3 @@
-aa4758822528,id,java.lang.Integer,true,null,null
-aa4758822528,name,java.lang.String,false,null,null
-aa4758822528,gpa,java.lang.Double,false,null,null
+aa550737307,id,java.lang.Integer,true,idIndex,B+Tree
+aa550737307,name,java.lang.String,false,null,null
+aa550737307,gpa,java.lang.Double,false,null,null

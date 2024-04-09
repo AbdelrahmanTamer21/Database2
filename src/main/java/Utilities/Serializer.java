@@ -4,6 +4,8 @@ import Main.Page;
 import Main.Table;
 
 import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class Serializer {
 
@@ -12,13 +14,12 @@ public class Serializer {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream("Pages/" + tableName + "/" + tableName + serial + ".ser");
 
-            ObjectOutputStream objOutputStream = new ObjectOutputStream(fileOutputStream);
+            ObjectOutputStream objOutputStream = new ObjectOutputStream(new GZIPOutputStream(fileOutputStream));
 
             objOutputStream.writeObject(page);
             //we don't want a memory leak if we can avoid it
-            fileOutputStream.close();
             objOutputStream.close();
-
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -29,7 +30,7 @@ public class Serializer {
         try {
             FileInputStream fileInputStream = new FileInputStream ("Pages/" + tableName + "/" + tableName + serial +".ser");
 
-            ObjectInputStream objInputStream = new ObjectInputStream (fileInputStream);
+            ObjectInputStream objInputStream = new ObjectInputStream(new GZIPInputStream(fileInputStream));
 
             Page page = (Page) objInputStream.readObject();
 
@@ -50,13 +51,12 @@ public class Serializer {
             //you may also write this verbosely as
             FileOutputStream fileOutputStream = new FileOutputStream("Tables/" + tableName + ".ser");
 
-            ObjectOutputStream objOutputStream = new ObjectOutputStream(fileOutputStream);
+            ObjectOutputStream objOutputStream = new ObjectOutputStream(new GZIPOutputStream(fileOutputStream));
 
             objOutputStream.writeObject(table);
             //we don't want a memory leak if we can avoid it
-            fileOutputStream.close();
             objOutputStream.close();
-
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,7 +67,7 @@ public class Serializer {
         try {
             FileInputStream fileInputStream = new FileInputStream ("Tables/" + tableName +".ser");
 
-            ObjectInputStream objInputStream = new ObjectInputStream (fileInputStream);
+            ObjectInputStream objInputStream = new ObjectInputStream (new GZIPInputStream(fileInputStream));
 
             Table table = (Table) objInputStream.readObject();
 

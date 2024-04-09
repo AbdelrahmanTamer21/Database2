@@ -162,4 +162,12 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> implements Serializable 
 			s.append(this.getKey(i)).append(" ");
 		return s.toString();
 	}
+
+	public String toStringRange() {
+		if(this.keyCount == 1){
+			return this.getKey(0).toString();
+		}else{
+			return this.getKey(0).toString() + " to " + this.getKey(this.keyCount - 1).toString();
+		}
+	}
 }
