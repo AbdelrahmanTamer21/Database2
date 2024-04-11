@@ -1,4 +1,4 @@
-package Main;
+package sql;
 
 /** * @author Wael Abouelsaadat */
 

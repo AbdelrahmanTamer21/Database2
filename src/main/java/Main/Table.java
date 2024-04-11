@@ -4,6 +4,7 @@ import BTree.BTree;
 import BTree.Pointer;
 import Exception.DBAppException;
 import Utilities.Serializer;
+import sql.SQLTerm;
 
 import java.io.File;
 import java.io.Serializable;
@@ -478,10 +479,6 @@ public class Table implements Serializable {
                 List<String> pageNamesList = new LinkedList<>(pageNames);
                 pageNamesList = pageNamesList.subList(pageToDeleteFrom-1,pageNamesList.size());
                 File file = new File("Pages/" + tableName + "/" + tableName + pageNames.size()+".ser");
-                File folder = new File("Pages/"+tableName);
-                File[] listOfFiles = folder.listFiles();
-                assert listOfFiles != null;
-                listOfFiles[pageToDeleteFrom-1].delete();
                 pageNames.remove(pageNames.size()-1);
                 if(pageNames.size() > 1) {
                     for (int i = pageToDeleteFrom - 1; i < pageNamesList.size(); i++) {

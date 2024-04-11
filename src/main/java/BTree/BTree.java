@@ -376,8 +376,9 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 				for (int j = 0; j < currentNode.getValue(i).size(); j++) {
 					int num = Integer.parseInt(currentNode.getValue(i).get(j).toString().split("-")[0]);
 					String primaryKey = currentNode.getValue(i).get(j).toString().split("-")[1];
+					//int tupleIndex = Integer.parseInt(currentNode.getValue(i).get(j).toString().split("-")[2]);
 					if (num >= pageNumber) {
-						currentNode.setValueInVector(i, j, (TValue) ((num - 1) + "-" + primaryKey));
+						currentNode.setValueInVector(i, j, (TValue) ((num - 1) + "-" + primaryKey + "-"));
 					}
 				}
 			}

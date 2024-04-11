@@ -27,8 +27,8 @@ public class Page implements Serializable {
         if (isDuplicate(tuple.getPrimaryKeyValue())) {
             throw new DBAppException("Primary key already exists");
         }
-        tuples.add(tuple);
-        sort();
+        tuples.add(findIndexToInsert(tuple.getPrimaryKeyValue()), tuple);
+        //sort();
     }
 
     // Method to remove last tuple from vector and return it for shifting
@@ -137,6 +137,29 @@ public class Page implements Serializable {
         }
 
         return -1;
+    }
+
+    public int findIndexToInsert(Object key){
+        int low = 0;
+        int high = tuples.size() - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            Object midValue = tuples.get(mid).getPrimaryKeyValue();
+            int cmp = switch (key.getClass().getSimpleName()) {
+                case "Integer" -> Integer.compare((int) key, (int) midValue);
+                case "String" -> ((String) key).compareTo((String) midValue);
+                case "Double" -> Double.compare((double) key, (double) midValue);
+                default -> throw new IllegalStateException("Unexpected value: " + key.getClass().getSimpleName());
+            };
+            if (cmp < 0) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return low;
     }
 
     // Method to check if this value already exists in the page

@@ -5,6 +5,8 @@ import Exception.DBAppException;
 import Utilities.Serializer;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import sql.SQLTerm;
+import sql.parser.SQLParser;
 
 import java.io.*;
 import java.util.*;
@@ -348,6 +350,12 @@ public class DBApp {
 		myTables.remove(strTableName);
 	}
 
+	public Iterator parseSQL(StringBuffer stringBuffer){
+		SQLParser sqlParser = new SQLParser(this);
+		Iterator resultSet = sqlParser.parseSQL(stringBuffer);
+		return resultSet;
+	}
+
 	public static void main( String[] args ){
 	
 	try{
@@ -396,8 +404,8 @@ public class DBApp {
 			table.printTable();
 
 
-			Main.SQLTerm[] arrSQLTerms;
-			arrSQLTerms = new Main.SQLTerm[2];
+			SQLTerm[] arrSQLTerms;
+			arrSQLTerms = new SQLTerm[2];
 			arrSQLTerms[0] = new SQLTerm();
 			arrSQLTerms[0]._strTableName =  "Student";
 			arrSQLTerms[0]._strColumnName=  "name";
@@ -415,6 +423,16 @@ public class DBApp {
 			// select * from Student where name = "John Noor" or gpa = 1.5;
 			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
 			System.out.println();
+			while (resultSet.hasNext()){
+				System.out.println(resultSet.next());
+			}
+
+			StringBuffer sqlBuffer = new StringBuffer("CREATE TABLE example_table (id INT PRIMARY KEY, name VARCHAR(50));");
+			resultSet = dbApp.parseSQL(sqlBuffer);
+			sqlBuffer = new StringBuffer("INSERT INTO example_table (id, name) VALUES (1, 'John'), (2, 'Sam');");
+			resultSet = dbApp.parseSQL(sqlBuffer);
+			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 AND name = 'John';");
+			resultSet = dbApp.parseSQL(sqlBuffer);
 			while (resultSet.hasNext()){
 				System.out.println(resultSet.next());
 			}

@@ -5,10 +5,10 @@ import Utilities.Serializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sql.SQLTerm;
 
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
