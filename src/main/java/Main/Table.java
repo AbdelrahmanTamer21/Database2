@@ -142,6 +142,7 @@ public class Table implements Serializable {
             }else {
                 serialToInsertIn = findPageForCertainValue(htblColNameValue.get(primaryKey));
             }
+            serialToInsertIn = Integer.parseInt(pageNames.get(serialToInsertIn-1).substring(tableName.length(),pageNames.get(serialToInsertIn-1).length()-4));
             Page page = Serializer.deserializePage(tableName,serialToInsertIn);
             assert page != null;
             // If the primary key does not exist, it returns -1, throw an exception
@@ -210,7 +211,8 @@ public class Table implements Serializable {
         }
 
         for (int i = index;i<=pageNames.size();i++) {
-            Page page = Serializer.deserializePage(tableName,i);
+            index = Integer.parseInt(pageNames.get(i-1).substring(tableName.length(),pageNames.get(i-1).length()-4));
+            Page page = Serializer.deserializePage(tableName,index);
             if (!Objects.requireNonNull(page).isFull()) {
                 if(!bTrees.isEmpty()){
                     for (int j = 0;j<bTrees.size();j++) {
@@ -286,7 +288,7 @@ public class Table implements Serializable {
             }
         }
         // If no page has space, create a new page and insert the new string
-        int newPageId = pageNames.size() + 1; // Assuming page ids start from 1
+        int newPageId = Integer.parseInt(pageNames.get(pageNames.size()-1).substring(tableName.length(),pageNames.get(pageNames.size()-1).length()-4)) + 1; // Assuming page ids start from 1
         Page newPage = new Page(new Vector<>(), newPageId);
         newPage.insert(values, attributes, primaryKey);
         if(!bTrees.isEmpty()){
@@ -330,6 +332,7 @@ public class Table implements Serializable {
             default -> throw new IllegalStateException("Unexpected value: " + attributes.get(this.primaryKey));
         };
         int pageToUpdateIn = findPageForCertainValue(value);
+        pageToUpdateIn = Integer.parseInt(pageNames.get(pageToUpdateIn-1).substring(tableName.length(),pageNames.get(pageToUpdateIn-1).length()-4));
         Page page = Serializer.deserializePage(tableName,pageToUpdateIn);
         assert page != null;
         HashMap<String, Object> data = page.update(value, this.primaryKey, values, attributes);
@@ -380,6 +383,7 @@ public class Table implements Serializable {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             if(Objects.equals(entry.getKey(), primaryKey)){
                 int pageToDeleteFrom = findPageForCertainValue(entry.getValue());
+                pageToDeleteFrom = Integer.parseInt(pageNames.get(pageToDeleteFrom-1).substring(tableName.length(),pageNames.get(pageToDeleteFrom-1).length()-4));
                 Page page = Serializer.deserializePage(tableName,pageToDeleteFrom);
                 assert page != null;
                 Tuple tuple = page.getTuples().get(page.binarySearchString(entry.getValue()));
@@ -459,6 +463,7 @@ public class Table implements Serializable {
     // Method to delete a tuple
     public void deleteTuple(Object primaryKeyVal) throws DBAppException {
         int pageToDeleteFrom = findPageForCertainValue(primaryKeyVal);
+        pageToDeleteFrom = Integer.parseInt(pageNames.get(pageToDeleteFrom-1).substring(tableName.length(),pageNames.get(pageToDeleteFrom-1).length()-4));
         Page page = Serializer.deserializePage(tableName,pageToDeleteFrom);
         assert page != null;
         Vector<Tuple> tuples = page.getTuples();
@@ -476,19 +481,10 @@ public class Table implements Serializable {
             };
             if(tuples.size() != 0 && comparisonResult == 0){
                 tuple = page.delete(primaryKeyVal);
-                List<String> pageNamesList = new LinkedList<>(pageNames);
-                pageNamesList = pageNamesList.subList(pageToDeleteFrom-1,pageNamesList.size());
-                File file = new File("Pages/" + tableName + "/" + tableName + pageNames.size()+".ser");
-                pageNames.remove(pageNames.size()-1);
-                if(pageNames.size() > 1) {
-                    for (int i = pageToDeleteFrom - 1; i < pageNamesList.size(); i++) {
-                        Page currentPage = Serializer.deserializePage(tableName, i+2);
-                        assert currentPage != null;
-                        currentPage.setSerial(i + 1);
-                        Serializer.serializePage(currentPage, tableName, i + 1);
-                    }
-                }
-                updatePageNum = true;
+                File file = new File("Pages/" + tableName + "/" + tableName + pageToDeleteFrom+".ser");
+                pageNames.remove(tableName+pageToDeleteFrom+".ser");
+
+                //updatePageNum = true;
                 file.delete();
             }
         }
@@ -533,7 +529,8 @@ public class Table implements Serializable {
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
-            Page currentPage = Serializer.deserializePage(tableName,mid+1);
+            int index = Integer.parseInt(pageNames.get(mid).substring(tableName.length(),pageNames.get(mid).length()-4));
+            Page currentPage = Serializer.deserializePage(tableName,index);
             assert currentPage != null;
             if(currentPage.isEmpty()){
                 return mid+1;
@@ -634,8 +631,6 @@ public class Table implements Serializable {
             bTrees.add(colName+"Index");
             indexNames.add(indexName);
             indices.add(index);
-        }else {
-            updateBTreeIndex(colName,index);
         }
 
     }
@@ -765,8 +760,9 @@ public class Table implements Serializable {
                     LinkedList<Pointer<String,String>> list = bTree.computeOperator(String.valueOf(sqlTerm._objValue),sqlTerm._strOperator);
                     for(Pointer<String, String> pointer : list){
                         int pageNum = Integer.parseInt(pointer.value().split("-")[0]);
+                        pageNum = pageNames.indexOf(tableName + pageNum + ".ser");
                         Object primaryKey = getParsedPrimaryKey(type,pointer.value().split("-")[1]);
-                        Page page = pages.get(pageNum-1);
+                        Page page = pages.get(pageNum);
                         Tuple tuple = page.getTuples().get(page.binarySearchString(primaryKey));
                         dataSet.put(primaryKey,tuple);
                     }
@@ -776,8 +772,9 @@ public class Table implements Serializable {
                     LinkedList<Pointer<Integer,String>> list = bTree.computeOperator((int) sqlTerm._objValue,sqlTerm._strOperator);
                     for(Pointer<Integer, String> pointer : list){
                         int pageNum = Integer.parseInt(pointer.value().split("-")[0]);
+                        pageNum = pageNames.indexOf(tableName + pageNum + ".ser");
                         Object primaryKey = getParsedPrimaryKey(type,pointer.value().split("-")[1]);
-                        Page page = pages.get(pageNum-1);
+                        Page page = pages.get(pageNum);
                         Tuple tuple = page.getTuples().get(page.binarySearchString(primaryKey));
                         dataSet.put(primaryKey,tuple);
                     }
@@ -787,8 +784,9 @@ public class Table implements Serializable {
                     LinkedList<Pointer<Double,String>> list = bTree.computeOperator((double) sqlTerm._objValue,sqlTerm._strOperator);
                     for(Pointer<Double, String> pointer : list){
                         int pageNum = Integer.parseInt(pointer.value().split("-")[0]);
+                        pageNum = pageNames.indexOf(tableName + pageNum + ".ser");
                         Object primaryKey = getParsedPrimaryKey(type,pointer.value().split("-")[1]);
-                        Page page = pages.get(pageNum-1);
+                        Page page = pages.get(pageNum);
                         Tuple tuple = page.getTuples().get(page.binarySearchString(primaryKey));
                         dataSet.put(primaryKey,tuple);
                     }

@@ -350,9 +350,9 @@ public class DBApp {
 		myTables.remove(strTableName);
 	}
 
-	public Iterator parseSQL(StringBuffer stringBuffer){
+	public Iterator parseSQL(StringBuffer strbufSQL) throws DBAppException{
 		SQLParser sqlParser = new SQLParser(this);
-		Iterator resultSet = sqlParser.parseSQL(stringBuffer);
+		Iterator resultSet = sqlParser.parseSQL(strbufSQL);
 		return resultSet;
 	}
 
@@ -367,7 +367,10 @@ public class DBApp {
 			htblColNameType.put("name", "java.lang.String");
 			htblColNameType.put("gpa", "java.lang.Double");
 			dbApp.createTable( strTableName, "id", htblColNameType );
-			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
+			//dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
+
+			StringBuffer sqlBuffer = new StringBuffer("CREATE INDEX gpaIndex ON Student (gpa);");
+			dbApp.parseSQL(sqlBuffer);
 
 			Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 			htblColNameValue.put("id", 2343432 );
@@ -427,11 +430,21 @@ public class DBApp {
 				System.out.println(resultSet.next());
 			}
 
-			StringBuffer sqlBuffer = new StringBuffer("CREATE TABLE example_table (id INT PRIMARY KEY, name VARCHAR(50));");
+			sqlBuffer = new StringBuffer("CREATE TABLE example_table (id INT PRIMARY KEY, name VARCHAR(50),age INT);");
+			dbApp.parseSQL(sqlBuffer);
+			sqlBuffer = new StringBuffer("INSERT INTO example_table (id, name, age) VALUES (1, 'John', 15), (2, 'Sam', 17);");
+			dbApp.parseSQL(sqlBuffer);
+			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 OR name = 'Sam';");
 			resultSet = dbApp.parseSQL(sqlBuffer);
-			sqlBuffer = new StringBuffer("INSERT INTO example_table (id, name) VALUES (1, 'John'), (2, 'Sam');");
-			resultSet = dbApp.parseSQL(sqlBuffer);
-			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 AND name = 'John';");
+			while (resultSet.hasNext()){
+				System.out.println(resultSet.next());
+			}
+			sqlBuffer = new StringBuffer("UPDATE example_table SET name = 'Samuel',age = 20 WHERE id = 2;");
+			dbApp.parseSQL(sqlBuffer);
+			sqlBuffer = new StringBuffer("DELETE FROM example_table WHERE id = 1;");
+			dbApp.parseSQL(sqlBuffer);
+			System.out.println();
+			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 OR name = 'Sam';");
 			resultSet = dbApp.parseSQL(sqlBuffer);
 			while (resultSet.hasNext()){
 				System.out.println(resultSet.next());

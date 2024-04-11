@@ -481,7 +481,34 @@ public class DBAppTest {
 		assertEquals(2,table.getPageNames().size());
 		assertEquals(300, table.getSize());
 		assertEquals(400, table.getPageAtPosition(1).getTuples().get(0).getPrimaryKeyValue());
-		assertEquals(2, table.getPageAtPosition(1).getSerial());
+		assertEquals(3, table.getPageAtPosition(1).getSerial());
+	}
+
+	@Test
+	void testInsertIntoTable_AfterDeleteFromTable_ManyTuplesDeleteMiddlePage_ShouldDeleteSuccessfully()
+			throws DBAppException {
+		// Given
+		engine.createIndex(newTableName, name, name+"Index");
+		String[] names = new String[] { "s1","s2","s3" };
+		for (int i = 0; i < 500; i++)
+			engine.insertIntoTable(newTableName, createRow(i, names[(i/200)], TEST_GPA));
+		Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+		htblColNameValue.put(name, names[1]);
+
+		engine.deleteFromTable(newTableName, htblColNameValue);
+
+		// When
+		for (int i = 0; i < 300; i++) {
+			engine.insertIntoTable(newTableName, createRow(i + 500, TEST_NAME, TEST_GPA));
+		}
+
+		// Then
+		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
+		assertEquals(3,table.getPageNames().size());
+		assertEquals(600, table.getSize());
+		assertEquals(400, table.getPageAtPosition(1).getTuples().get(0).getPrimaryKeyValue());
+		//assertEquals(2, table.getPageAtPosition(1).getSerial());
 	}
 
 	@Test
@@ -864,6 +891,66 @@ public class DBAppTest {
 		String expectedMessage = "The Table doesn't contain a salary column";
 		String outputMessage = exception.getMessage();
 		assertEquals(expectedMessage,outputMessage);
+	}
+
+	@Test
+	void testSQLParser_SelectFromTable_ShouldSelect8Values() throws DBAppException {
+		//Given
+		for (int i = 1; i < 9 ; i++)
+			insertRow(i);
+		StringBuffer command = new StringBuffer("SELECT * FROM "+newTableName+" WHERE name = \'Abdo\'; ");
+
+		//When
+		Iterator it = engine.parseSQL(command);
+
+		//Then
+		assertEquals(8,getIteratorSize(it));
+	}
+
+	@Test
+	void testSQLParser_InsertIntoTable_ShouldInsertSuccessfully() throws DBAppException {
+		// Given
+		for (int i = 1; i < 9; i++)
+			insertRow(i);
+		StringBuffer command = new StringBuffer(
+				"INSERT INTO " +newTableName + "(id, gpa, name) VALUES (10, 1.7, \'Abdo\');");
+		int oldSize = Serializer.deserializeTable(newTableName).getSize();
+
+		// When
+		engine.parseSQL(command);
+
+		// Then
+		int newSize = Serializer.deserializeTable(newTableName).getSize();
+		assertEquals(oldSize + 1,  newSize);
+	}
+
+	@Test
+	void testSQLParser_UpdateTable_ShouldUpdateSuccessfully() throws DBAppException {
+		// Given
+		insertRow(1);
+		StringBuffer command = new StringBuffer("UPDATE " + newTableName + " SET gpa = 1.5 WHERE id = 1; ");
+		double oldGpa = (double) (Serializer.deserializePage(newTableName, 1).getTuples().get(0).getValues().get("gpa"));
+		// When
+		engine.parseSQL(command);
+
+		// Then
+		double newGpa = (double) (Serializer.deserializePage(newTableName, 1).getTuples().get(0).getValues().get("gpa"));
+		assertEquals(TEST_GPA, oldGpa);
+		assertEquals(1.5, newGpa);
+	}
+
+	@Test
+	void testSQLParser_DeleteFromTable_ShouldDeleteValues() throws DBAppException {
+		// Given
+		insertRow(1);
+		StringBuffer command = new StringBuffer("DELETE FROM " + newTableName + " WHERE id = 1; ");
+
+		// When
+		engine.parseSQL(command);
+
+		// Then
+		Table table = Serializer.deserializeTable(newTableName);
+		assertTrue(table.isEmpty());
 	}
 
 

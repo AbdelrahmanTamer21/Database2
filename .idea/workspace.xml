@@ -4,30 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Optimizations">
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteLexer.interp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteLexer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteLexer.tokens" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParser.interp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParser.tokens" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParserBaseListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParserBaseVisitor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParserListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/antlr/SQLiteParserVisitor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/parser/DBListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sql/parser/SQLParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/SQLiteLexer.g4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/SQLiteParser.g4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Creating Parser Test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/SQLTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sql/SQLTerm.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/sql/parser/DBListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sql/parser/DBListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/sql/parser/SQLParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sql/parser/SQLParser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -110,20 +94,7 @@
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\Pages\Student" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.DBApp">
-    <configuration name="BTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="BTree.BTree" />
-      <module name="Database2" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="BTree.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.DBAppTest">
     <configuration name="DBApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main.DBApp" />
       <module name="Database2" />
@@ -161,10 +132,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.DBAppTest" />
         <item itemvalue="Application.DBApp" />
         <item itemvalue="Application.Table" />
-        <item itemvalue="JUnit.DBAppTest" />
-        <item itemvalue="Application.BTree" />
       </list>
     </recent_temporary>
   </component>
@@ -197,7 +167,7 @@
       <workItem from="1712709958811" duration="253000" />
       <workItem from="1712710225436" duration="347000" />
       <workItem from="1712710585453" duration="6054000" />
-      <workItem from="1712758076979" duration="10130000" />
+      <workItem from="1712758076979" duration="24923000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -332,7 +302,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712686802048</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Creating Parser Test">
+      <created>1712796960797</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1712796960797</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -367,7 +344,8 @@
     <MESSAGE value="Made BTree parameters to &lt;?,Vector&lt;String&gt;&gt;" />
     <MESSAGE value="Fixed insert in table for repeated primary key" />
     <MESSAGE value="Optimizations" />
-    <option name="LAST_COMMIT_MESSAGE" value="Optimizations" />
+    <MESSAGE value="Creating Parser Test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Creating Parser Test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

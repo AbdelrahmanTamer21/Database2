@@ -88,6 +88,9 @@ public class Page implements Serializable {
 
     public HashMap<String, Object> update(Object primaryKeyVal, String primaryKey, Hashtable<String,Object> values, LinkedHashMap<String,String> attributes) throws DBAppException {
         int indexToUpdate = binarySearchString(primaryKeyVal);
+        if (indexToUpdate == -1) {
+            throw new DBAppException("Primary key not found");
+        }
         Tuple tuple = tuples.get(indexToUpdate);
         HashMap<String,Object> data = new HashMap<>(tuple.getValues());
         //iterate over the attributes and check if the value is of the same type
@@ -171,7 +174,4 @@ public class Page implements Serializable {
         return serial;
     }
 
-    public void setSerial(int serial) {
-        this.serial = serial;
-    }
 }

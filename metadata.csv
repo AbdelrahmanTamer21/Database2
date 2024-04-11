@@ -1,5 +1,3 @@
-Student,id,java.lang.Integer,true,null,null
-Student,name,java.lang.String,false,null,null
-Student,gpa,java.lang.Double,false,gpaIndex,B+Tree
-example_table,id,java.lang.Integer,true,null,null
-example_table,name,java.lang.String,false,null,null
+aa4933912735,id,java.lang.Integer,true,null,null
+aa4933912735,name,java.lang.String,false,null,null
+aa4933912735,gpa,java.lang.Double,false,null,null
