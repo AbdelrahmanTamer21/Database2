@@ -6,7 +6,7 @@ import java.util.Vector;
 
 class BTreeLeafNode<TKey extends Comparable<TKey>, TValue> extends BTreeNode<TKey> {
 	protected final static int LEAFORDER = DBApp.nodeOrder;
-	private Object[] values;
+	private final Object[] values;
 
 	public BTreeLeafNode() {
 		this.keys = new Object[LEAFORDER + 1];

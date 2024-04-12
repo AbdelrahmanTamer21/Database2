@@ -7,10 +7,9 @@
     <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Made DBApp work even after closing the program to load made tables">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Utilities/Serializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Utilities/Serializer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,25 +58,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaClassFindUsagesOptions.isSearchForTextOccurrences&quot;: &quot;false&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Abdelrahman Tamer/IdeaProjects/Database2/src/main/java/sql/antlr&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.fileTypes&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaClassFindUsagesOptions.isSearchForTextOccurrences": "false",
+    "WebServerToolWindowFactoryState": "false",
+    "extract.method.default.visibility": "private",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/Abdelrahman Tamer/IdeaProjects/Database2/src/main/java/sql/antlr",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\src\main\java\sql\antlr" />
@@ -93,7 +92,7 @@
       <recent name="C:\Users\Abdelrahman Tamer\IdeaProjects\Database2\Pages\Student" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.DBAppTest">
+  <component name="RunManager" selected="Application.DBApp">
     <configuration name="DBApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main.DBApp" />
       <module name="Database2" />
@@ -131,8 +130,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.DBAppTest" />
         <item itemvalue="Application.DBApp" />
+        <item itemvalue="JUnit.DBAppTest" />
         <item itemvalue="Application.Table" />
       </list>
     </recent_temporary>
@@ -169,7 +168,7 @@
       <workItem from="1712758076979" duration="31869000" />
       <workItem from="1712892518394" duration="4315000" />
       <workItem from="1712901653973" duration="302000" />
-      <workItem from="1712919356717" duration="2012000" />
+      <workItem from="1712919356717" duration="8600000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -318,7 +317,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712849439248</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Made DBApp work even after closing the program to load made tables">
+      <created>1712923770654</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1712923770654</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

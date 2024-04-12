@@ -1,19 +1,16 @@
 package sql.parser;
 
+import Exception.DBAppException;
 import Main.DBApp;
-import Main.Page;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import sql.antlr.SQLiteLexer;
 import sql.antlr.SQLiteParser;
 
 import java.util.Iterator;
 import java.util.List;
-
-import Exception.DBAppException;
 
 public class SQLParser {
     DBApp dbApp;
@@ -29,13 +26,12 @@ public class SQLParser {
         SQLiteParser parser = new SQLiteParser(tokens);
         SQLiteParser.ParseContext parseContext = parser.parse();
         determineStatementType(parseContext);
-        ParseTree tree = (ParseTree) parseContext;
         DBListener listener = new DBListener(dbApp);
-        ParseTreeWalker.DEFAULT.walk(listener, tree);
+        ParseTreeWalker.DEFAULT.walk(listener, parseContext);
         return listener.getResult();
     }
 
-    public String determineStatementType(SQLiteParser.ParseContext parseContext) throws DBAppException {
+    public void determineStatementType(SQLiteParser.ParseContext parseContext) throws DBAppException {
         // Get the list of sql_stmt_list contexts
         List<SQLiteParser.Sql_stmt_listContext> sqlStmtListContexts = parseContext.sql_stmt_list();
 
@@ -45,23 +41,22 @@ public class SQLParser {
 
             // Check if the sql_stmt_list context contains specific types of SQL statements
             if (sql_stmtContext.select_stmt() != null) {
-                return "SELECT";
+                return;
             } else if (sql_stmtContext.insert_stmt() != null) {
-                return "INSERT";
+                return;
             } else if (sql_stmtContext.update_stmt() != null) {
-                return "UPDATE";
+                return;
             } else if (sql_stmtContext.delete_stmt() != null) {
-                return "DELETE";
+                return;
             } else if (sql_stmtContext.create_table_stmt() != null) {
-                return "CREATE TABLE";
+                return;
             } else if (sql_stmtContext.create_index_stmt() != null) {
-                return "CREATE INDEX";
+                return;
             }else {
                 throw new DBAppException("Unsupported SQL statement type");
             }
         }
 
         // If no recognized statement type is found, return null
-        return null;
     }
 }

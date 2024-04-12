@@ -39,7 +39,7 @@ public class DBApp {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				String[] values = line.split(",");
-				//myTables.add(values[0]);
+				myTables.add(values[0]);
 			}
 		}catch (IOException e){
 			e.printStackTrace();
@@ -350,6 +350,12 @@ public class DBApp {
 			file.delete();
 		}
 		pagesDir.delete();
+		File indicesDir = new File("Indices/"+strTableName);
+		files = indicesDir.listFiles();
+		for (File file : files) {
+			file.delete();
+		}
+		indicesDir.delete();
 		File tableFile = new File("Tables/"+strTableName+".ser");
 		tableFile.delete();
 		myTables.remove(strTableName);
@@ -472,7 +478,7 @@ public class DBApp {
 			}
 			sqlBuffer = new StringBuffer("UPDATE example_table SET name = 'Samuel',age = 20 WHERE id = 2;");
 			dbApp.parseSQL(sqlBuffer);
-			sqlBuffer = new StringBuffer("DELETE FROM example_table WHERE id = 1;");
+			sqlBuffer = new StringBuffer("DELETE FROM example_table WHERE id = 5;");
 			dbApp.parseSQL(sqlBuffer);
 			System.out.println();
 			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 OR name = 'Sam';");
@@ -480,7 +486,6 @@ public class DBApp {
 			while (resultSet.hasNext()){
 				System.out.println(resultSet.next());
 			}
-			dbApp.deleteTable("example_table");
 		}
 		catch(Exception exp){
 			exp.printStackTrace( );

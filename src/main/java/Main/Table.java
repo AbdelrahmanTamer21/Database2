@@ -19,7 +19,6 @@ public class Table implements Serializable {
     private final Vector<String> pageNames;
     private final Vector<String> bTrees;
     private final Vector<String> indexNames;
-    private final Vector<BTree<?,String>> indices;
 
     public Table(String name, String primaryKeyColumn, LinkedHashMap<String, String> attributes) {
         this.tableName = name;
@@ -29,9 +28,10 @@ public class Table implements Serializable {
         this.size = 0;
         bTrees = new Vector<>();
         indexNames = new Vector<>();
-        indices = new Vector<>();
         File pagesDir = new File("Pages/" + tableName);
         pagesDir.mkdirs();
+        File indicesDir = new File("Indices/"+tableName);
+        indicesDir.mkdir();
     }
 
     /**
@@ -54,8 +54,8 @@ public class Table implements Serializable {
     }
     public List<BTree<?,String>> getBTrees(){
         List<BTree<?,String>> bTreesList = new ArrayList<>();
-        for(int i = 0;i<bTrees.size();i++){
-            bTreesList.add(indices.get(i));
+        for (String indexName : indexNames) {
+            bTreesList.add(Serializer.deserializeBTree(tableName, indexName));
         }
         return bTreesList;
     }
@@ -63,7 +63,7 @@ public class Table implements Serializable {
         if(bTrees.contains(colName+"Index")){
             for (int i = 0;i<bTrees.size();i++){
                 if((colName + "Index").equals(bTrees.get(i))){
-                    return indices.get(i);
+                    return Serializer.deserializeBTree(tableName,indexNames.get(i));
                 }
             }
         }
@@ -121,10 +121,11 @@ public class Table implements Serializable {
         }else {
             // Figure out which page to insert the new tuple in
             if(doesIndexExist(primaryKey)){
+                BTree<?,String> bTree = getBTree(primaryKey);
                 serialToInsertIn = switch (attributes.get(primaryKey)){
-                    case "java.lang.String" -> ((BTree<String,String>)getBTree(primaryKey)).getPageNumberForInsert((String) htblColNameValue.get(primaryKey));
-                    case "java.lang.Integer" -> ((BTree<Integer,String>)getBTree(primaryKey)).getPageNumberForInsert((Integer) htblColNameValue.get(primaryKey));
-                    case "java.lang.Double" -> ((BTree<Double,String>)getBTree(primaryKey)).getPageNumberForInsert((Double) htblColNameValue.get(primaryKey));
+                    case "java.lang.String" -> ((BTree<String,String>)bTree).getPageNumberForInsert((String) htblColNameValue.get(primaryKey));
+                    case "java.lang.Integer" -> ((BTree<Integer,String>)bTree).getPageNumberForInsert((Integer) htblColNameValue.get(primaryKey));
+                    case "java.lang.Double" -> ((BTree<Double,String>)bTree).getPageNumberForInsert((Double) htblColNameValue.get(primaryKey));
                     default -> 0;
                 };
             }else {
@@ -149,6 +150,7 @@ public class Table implements Serializable {
         }
         size++;
         if(!bTrees.isEmpty()){
+            List<BTree<?,String>> indices = getBTrees();
             for (int i = 0;i<bTrees.size();i++) {
                 String bTree = bTrees.get(i);
                 String colName = bTree.replace("Index","");
@@ -162,6 +164,7 @@ public class Table implements Serializable {
                     case "java.lang.Double" ->
                             ((BTree<Double, String>) indices.get(i)).insert((Double) htblColNameValue.get(colName), serialToInsertIn + "-" + htblColNameValue.get(primaryKey));
                 }
+                Serializer.serializeBTree(indices.get(i),tableName,indexNames.get(i));
             }
         }
     }
@@ -203,6 +206,7 @@ public class Table implements Serializable {
             Page page = Serializer.deserializePage(tableName,index);
             if (!Objects.requireNonNull(page).isFull()) {
                 if(!bTrees.isEmpty()){
+                    List<BTree<?,String>> indices = getBTrees();
                     for (int j = 0;j<bTrees.size();j++) {
                         String bTree = bTrees.get(j);
                         String colName = bTree.replace("Index","");
@@ -222,6 +226,7 @@ public class Table implements Serializable {
                                 bTree1.insert((double) values.get(colName),page.getSerial() + "-" + values.get(primaryKey));
                             }
                         }
+                        Serializer.serializeBTree(indices.get(j),tableName,indexNames.get(j));
                     }
                 }
                 page.insert(values,attributes, primaryKey);
@@ -249,6 +254,7 @@ public class Table implements Serializable {
                                     bTree.delete((Integer)lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
                                 }
                                 bTree.insert((Integer) values.get(key),page.getSerial() + "-" + values.get(primaryKey));
+                                Serializer.serializeBTree(bTree,tableName,bTree.getIndexName());
                             }
                             case "java.lang.String" -> {
                                 BTree<String, String> bTree = (BTree<String, String>) getBTree(key);
@@ -258,6 +264,7 @@ public class Table implements Serializable {
                                     bTree.delete((String) lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
                                 }
                                 bTree.insert((String) values.get(key),page.getSerial() + "-" + values.get(primaryKey));
+                                Serializer.serializeBTree(bTree,tableName,bTree.getIndexName());
                             }
                             case "java.lang.Double" -> {
                                 BTree<Double, String> bTree = (BTree<Double, String>) getBTree(key);
@@ -267,6 +274,7 @@ public class Table implements Serializable {
                                     bTree.delete((Double) lastTupleData.get(key),page.getSerial() + "-" + lastTuple.get(primaryKey));
                                 }
                                 bTree.insert((Double) values.get(key),page.getSerial() + "-" + values.get(primaryKey));
+                                Serializer.serializeBTree(bTree,tableName,bTree.getIndexName());
                             }
                         }
                     }
@@ -280,6 +288,7 @@ public class Table implements Serializable {
         Page newPage = new Page(new Vector<>(), newPageId);
         newPage.insert(values, attributes, primaryKey);
         if(!bTrees.isEmpty()){
+            List<BTree<?,String>> indices = getBTrees();
             for (int i = 0;i<bTrees.size();i++) {
                 String bTree = bTrees.get(i);
                 String colName = bTree.replace("Index","");
@@ -299,6 +308,7 @@ public class Table implements Serializable {
                         bTree1.insert((double) values.get(colName),newPage.getSerial() + "-" + values.get(primaryKey));
                     }
                 }
+                Serializer.serializeBTree(indices.get(i),tableName,indexNames.get(i));
             }
         }
         Serializer.serializePage(newPage,tableName,newPageId);
@@ -327,6 +337,7 @@ public class Table implements Serializable {
         Serializer.serializePage(page,tableName,page.getSerial());
 
         if(!bTrees.isEmpty()){
+            List<BTree<?,String>> indices = getBTrees();
             for (int i = 0;i<bTrees.size();i++) {
                 String bTree = bTrees.get(i);
                 String colName = bTree.replace("Index","");
@@ -352,6 +363,7 @@ public class Table implements Serializable {
                         bTree1.insert((double) values.get(colName),pageToUpdateIn + "-" + primaryKey);
                     }
                 }
+                Serializer.serializeBTree(indices.get(i),tableName,indexNames.get(i));
             }
         }
     }
@@ -374,7 +386,11 @@ public class Table implements Serializable {
                 pageToDeleteFrom = Integer.parseInt(pageNames.get(pageToDeleteFrom-1).substring(tableName.length(),pageNames.get(pageToDeleteFrom-1).length()-4));
                 Page page = Serializer.deserializePage(tableName,pageToDeleteFrom);
                 assert page != null;
-                Tuple tuple = page.getTuples().get(page.binarySearchString(entry.getValue()));
+                int index = page.binarySearchString(entry.getValue());
+                if (index == -1){
+                    return;
+                }
+                Tuple tuple = page.getTuples().get(index);
                 deleteTuple(tuple.getPrimaryKeyValue());
                 return;
             }
@@ -478,6 +494,7 @@ public class Table implements Serializable {
         size--;
         assert tuple != null;
         if(!bTrees.isEmpty()){
+            List<BTree<?,String>> indices = getBTrees();
             for (int i = 0;i<bTrees.size();i++) {
                 String bTree = bTrees.get(i);
                 String colName = bTree.replace("Index","");
@@ -497,6 +514,7 @@ public class Table implements Serializable {
                         bTree1.delete((double) tuple.getValues().get(colName),pageToDeleteFrom + "-" + tuple.getPrimaryKeyValue());
                     }
                 }
+                Serializer.serializeBTree(indices.get(i),tableName,indexNames.get(i));
             }
         }
     }
@@ -548,7 +566,6 @@ public class Table implements Serializable {
         }
 
         List<Page> pages = getPages(tableName);
-        BTree<?, String> index = new BTree<String, String>(indexName, colName);
         switch (attributes.get(colName)) {
             case "java.lang.String" -> {
                 Vector<Pointer<String, String>> data = new Vector<>();
@@ -566,7 +583,7 @@ public class Table implements Serializable {
                 for (Pointer<String, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
-                index = bTree;
+                Serializer.serializeBTree(bTree,tableName,indexName);
             }
             case "java.lang.Integer" -> {
                 Vector<Pointer<Integer, String>> data = new Vector<>();
@@ -584,7 +601,7 @@ public class Table implements Serializable {
                 for (Pointer<Integer, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
-                index = bTree;
+                Serializer.serializeBTree(bTree,tableName,indexName);
             }
             case "java.lang.Double" -> {
                 Vector<Pointer<Double, String>> data = new Vector<>();
@@ -602,13 +619,12 @@ public class Table implements Serializable {
                 for (Pointer<Double, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
-                index = bTree;
+                Serializer.serializeBTree(bTree,tableName,indexName);
             }
         }
         if(!bTrees.contains(colName+"Index")) {
             bTrees.add(colName+"Index");
             indexNames.add(indexName);
-            indices.add(index);
         }
 
     }
