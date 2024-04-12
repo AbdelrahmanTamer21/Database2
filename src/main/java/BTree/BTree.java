@@ -13,11 +13,17 @@ import java.util.Vector;
  */
 public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Serializable {
 	private final String indexName;
+	private final String colName;
 	private BTreeNode<TKey> root;
 
-	public BTree(String indexName) {
+	public BTree(String indexName, String colName) {
 		this.root = new BTreeLeafNode<TKey, TValue>();
 		this.indexName = indexName;
+		this.colName = colName;
+	}
+
+	public String getIndexName() {
+		return indexName;
 	}
 
 	public int getRootKeyCount(){
@@ -185,22 +191,10 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 
 	public LinkedList<Pointer<TKey,TValue>> getEqualKeys(TKey key){
 		LinkedList<Pointer<TKey,TValue>> list = new LinkedList<>();
-		BTreeLeafNode<TKey, TValue> currentNode = getFirstLeafNodeOnLeft();
-		do{
-			for (int i = 0; i < currentNode.getKeyCount(); i++) {
-				if(currentNode.getKey(i).compareTo(key) < 0){
-					continue;
-				}
-				if(currentNode.getKey(i).compareTo(key) == 0) {
-					for (int j = 0; j < currentNode.getValue(i).size(); j++) {
-						list.add(new Pointer<>(currentNode.getKey(i), currentNode.getValue(i).get(j)));
-					}
-				}else {
-					return list;
-				}
-			}
-			currentNode = currentNode.getRightSibling();
-		}while (currentNode != null);
+		Vector<TValue> vector = search(key);
+		for (TValue value : vector) {
+			list.add(new Pointer<>(key, value));
+		}
 		return list;
 	}
 

@@ -74,23 +74,11 @@ public class Table implements Serializable {
         String pageName = pageNames.get(position);
         return Serializer.deserializePage(tableName,Integer.parseInt( pageName.substring(tableName.length(),pageName.length()-4) ) );
     }
-    public void updateBTreeIndex(String colName,BTree<?,String> newBTree){
-        if(bTrees.contains(colName+"Index")){
-            for (int i = 0;i<bTrees.size();i++){
-                if((colName + "Index").equals(bTrees.get(i))){
-                    indices.set(i,newBTree);
-                }
-            }
-        }
-    }
     private boolean doesIndexExist(String colName){
         return bTrees.contains(colName+"Index");
     }
     public Vector<String> getPageNames() {
         return pageNames;
-    }
-    public Vector<String> getIndices(){
-        return bTrees;
     }
     public Vector<String> getIndexNames(){
         return indexNames;
@@ -468,7 +456,6 @@ public class Table implements Serializable {
         assert page != null;
         Vector<Tuple> tuples = page.getTuples();
         Tuple tuple = null;
-        boolean updatePageNum = false;
         if(tuples.size() > 1){
             tuple = page.delete(primaryKeyVal);
             Serializer.serializePage(page,tableName,page.getSerial());
@@ -500,23 +487,14 @@ public class Table implements Serializable {
                     case "java.lang.String" -> {
                         BTree<String, String> bTree1 = (BTree<String, String>) indices.get(i);
                         bTree1.delete((String) tuple.getValues().get(colName),pageToDeleteFrom + "-" + tuple.getPrimaryKeyValue());
-                        if(updatePageNum){
-                           bTree1.reducePageNumbers(pageToDeleteFrom);
-                        }
                     }
                     case "java.lang.Integer" -> {
                         BTree<Integer, String> bTree1 = (BTree<Integer, String>) indices.get(i);
                         bTree1.delete((int) tuple.getValues().get(colName),pageToDeleteFrom + "-" + tuple.getPrimaryKeyValue());
-                        if(updatePageNum){
-                            bTree1.reducePageNumbers(pageToDeleteFrom);
-                        }
                     }
                     case "java.lang.Double" -> {
                         BTree<Double, String> bTree1 = (BTree<Double, String>) indices.get(i);
                         bTree1.delete((double) tuple.getValues().get(colName),pageToDeleteFrom + "-" + tuple.getPrimaryKeyValue());
-                        if(updatePageNum){
-                            bTree1.reducePageNumbers(pageToDeleteFrom);
-                        }
                     }
                 }
             }
@@ -570,7 +548,7 @@ public class Table implements Serializable {
         }
 
         List<Page> pages = getPages(tableName);
-        BTree<?, String> index = new BTree<String, String>(indexName);
+        BTree<?, String> index = new BTree<String, String>(indexName, colName);
         switch (attributes.get(colName)) {
             case "java.lang.String" -> {
                 Vector<Pointer<String, String>> data = new Vector<>();
@@ -584,7 +562,7 @@ public class Table implements Serializable {
                     String s2 = String.valueOf(o2.key());
                     return s1.compareTo(s2);
                 });
-                BTree<String, String> bTree = new BTree<String, String>(indexName);
+                BTree<String, String> bTree = new BTree<String, String>(indexName, colName);
                 for (Pointer<String, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
@@ -602,7 +580,7 @@ public class Table implements Serializable {
                     Integer i2 = o2.key();
                     return i1.compareTo(i2);
                 });
-                BTree<Integer, String> bTree = new BTree<Integer, String>(indexName);
+                BTree<Integer, String> bTree = new BTree<Integer, String>(indexName, colName);
                 for (Pointer<Integer, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
@@ -620,7 +598,7 @@ public class Table implements Serializable {
                     Double d2 = o2.key();
                     return d1.compareTo(d2);
                 });
-                BTree<Double, String> bTree = new BTree<Double, String>(indexName);
+                BTree<Double, String> bTree = new BTree<Double, String>(indexName, colName);
                 for (Pointer<Double, String> datum : data) {
                     bTree.insert(datum.key(), datum.value());
                 }
@@ -795,6 +773,9 @@ public class Table implements Serializable {
 
             }
         }else{
+            if(Objects.equals(sqlTerm._strColumnName, primaryKey)) {
+                return linearSearchForPrimaryKey(sqlTerm._strOperator, sqlTerm._objValue);
+            }
             return linearSearch(sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
         }
         return null;
@@ -844,6 +825,84 @@ public class Table implements Serializable {
                         if (compareValues(tuple, colName, value) == 0) {
                             tupleMap.put(tuple.getPrimaryKeyValue(), tuple);
                         }
+                    }
+                }
+            }
+        }
+        return tupleMap;
+    }
+
+    private HashMap<Object,Tuple> linearSearchForPrimaryKey(String operator,Object value){
+        HashMap<Object, Tuple> tupleMap = new HashMap<>();
+        if(operator.equals("!=")){
+            List<Page> pages = getPages(tableName);
+            for (Page page : pages) {
+                for (Tuple tuple : page.getTuples()) {
+                    if (!tuple.getPrimaryKeyValue().equals(value)) {
+                        tupleMap.put(tuple.getPrimaryKeyValue(), tuple);
+                    }
+                }
+            }
+            return tupleMap;
+        }
+        int index = findPageForCertainValue(value);
+        if (operator.equals("=")) {
+            index = Integer.parseInt(pageNames.get(index-1).substring(tableName.length(),pageNames.get(index-1).length()-4));
+            Page page = Serializer.deserializePage(tableName,index);
+            if (page == null) {
+                return tupleMap;
+            }
+            tupleMap.put(value, page.getTuples().get(page.binarySearchString(value)));
+            return tupleMap;
+        }
+        if (operator.equals("<")) {
+            for (int i = 0; i < index; i++) {
+                index = Integer.parseInt(pageNames.get(i).substring(tableName.length(),pageNames.get(i).length()-4));
+                Page page = Serializer.deserializePage(tableName,index);
+                assert page != null;
+                for (Tuple tuple : page.getTuples()) {
+                    if (compareValues(tuple, primaryKey, value) < 0) {
+                        tupleMap.put(tuple.getPrimaryKeyValue(), tuple);
+                    }else {
+                        return tupleMap;
+                    }
+                }
+            }
+        }
+        if (operator.equals("<=")) {
+            for (int i = 0; i < index; i++) {
+                index = Integer.parseInt(pageNames.get(i).substring(tableName.length(),pageNames.get(i).length()-4));
+                Page page = Serializer.deserializePage(tableName,index);
+                assert page != null;
+                for (Tuple tuple : page.getTuples()) {
+                    if (compareValues(tuple, primaryKey, value) <= 0) {
+                        tupleMap.put(tuple.getPrimaryKeyValue(), tuple);
+                    }else {
+                        return tupleMap;
+                    }
+                }
+            }
+        }
+        if (operator.equals(">")) {
+            for (int i = index-1; i < pageNames.size(); i++) {
+                index = Integer.parseInt(pageNames.get(i).substring(tableName.length(),pageNames.get(i).length()-4));
+                Page page = Serializer.deserializePage(tableName,index);
+                assert page != null;
+                for (Tuple tuple : page.getTuples()) {
+                    if (compareValues(tuple, primaryKey, value) > 0) {
+                        tupleMap.put(tuple.getPrimaryKeyValue(), tuple);
+                    }
+                }
+            }
+        }
+        if (operator.equals(">=")) {
+            for (int i = index-1; i < pageNames.size(); i++) {
+                index = Integer.parseInt(pageNames.get(i).substring(tableName.length(),pageNames.get(i).length()-4));
+                Page page = Serializer.deserializePage(tableName,index);
+                assert page != null;
+                for (Tuple tuple : page.getTuples()) {
+                    if (compareValues(tuple, primaryKey, value) >= 0) {
+                        tupleMap.put(tuple.getPrimaryKeyValue(), tuple);
                     }
                 }
             }

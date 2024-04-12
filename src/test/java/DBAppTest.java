@@ -598,7 +598,7 @@ public class DBAppTest {
 		Table table = Serializer.deserializeTable(newTableName);
 		assert table != null;
 		assertEquals(1,table.getBTree(gpa).getRootKeyCount());
-		assertEquals(1, table.getIndices().size());
+		assertEquals(1, table.getIndexNames().size());
 	}
 
 	@Test

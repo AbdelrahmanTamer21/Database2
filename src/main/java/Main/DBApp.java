@@ -28,15 +28,20 @@ public class DBApp {
 	// or leave it empty if there is no code you want to 
 	// execute at application startup 
 	public void init( ){
-		File pagesDir = new File("Pages");
-		pagesDir.mkdir();
 		File tablesDir = new File("Tables");
 		tablesDir.mkdir();
+		File pagesDir = new File("Pages");
+		pagesDir.mkdir();
+		File indicesDir = new File("Indices");
+		indicesDir.mkdir();
 		File metadata = new File("metadata.csv");
-		try{
-			metadata.delete();
-			metadata.createNewFile();
-		}catch (Exception e){
+		try(Scanner scanner = new Scanner(metadata)){
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				String[] values = line.split(",");
+				//myTables.add(values[0]);
+			}
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 	}
@@ -348,12 +353,38 @@ public class DBApp {
 		File tableFile = new File("Tables/"+strTableName+".ser");
 		tableFile.delete();
 		myTables.remove(strTableName);
+		File file = new File("metadata.csv");
+		try {
+			FileReader inputFile = new FileReader(file);
+			// Read existing file
+			CSVReader reader = new CSVReader(inputFile);
+			List<String[]> csvBody = reader.readAll();
+			reader.close();
+			// get CSV row column and replace with by using row and column
+			List<String[]> filteredLines = new ArrayList<>();
+			for (String[] line : csvBody) {
+				if (!line[0].equals(strTableName)) { // Assuming the value is in the first column (index 0)
+					filteredLines.add(line);
+				}
+			}
+
+			FileWriter outputFile = new FileWriter(file);
+			// Write to CSV file which is open
+			CSVWriter writer = new CSVWriter(outputFile, ',',
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END);
+			writer.writeAll(filteredLines);
+			writer.close();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
 	}
 
 	public Iterator parseSQL(StringBuffer strbufSQL) throws DBAppException{
 		SQLParser sqlParser = new SQLParser(this);
-		Iterator resultSet = sqlParser.parseSQL(strbufSQL);
-		return resultSet;
+		return sqlParser.parseSQL(strbufSQL);
 	}
 
 	public static void main( String[] args ){
@@ -449,6 +480,7 @@ public class DBApp {
 			while (resultSet.hasNext()){
 				System.out.println(resultSet.next());
 			}
+			dbApp.deleteTable("example_table");
 		}
 		catch(Exception exp){
 			exp.printStackTrace( );
