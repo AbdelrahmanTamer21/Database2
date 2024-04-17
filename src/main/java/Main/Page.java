@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 public class Page implements Serializable {
-    private int serial;
+    private final int serial;
     private final Vector<Tuple> tuples;
     private final int maxSize = DBApp.pageSize;
 
@@ -48,11 +48,6 @@ public class Page implements Serializable {
         return result.toString();
     }
 
-    // Method to check if the page is empty
-    public boolean isEmpty() {
-        return tuples.isEmpty();
-    }
-
     // Method to check if the page is full
     public boolean isFull(){
         return tuples.size()==maxSize;
@@ -60,15 +55,6 @@ public class Page implements Serializable {
 
     public int getSize(){
         return tuples.size();
-    }
-
-    // Sort the tuples in the page based on the primary key
-    public void sort(){
-        switch (tuples.get(0).getPrimaryKeyValue().getClass().getSimpleName()){
-            case "String" -> tuples.sort(Comparator.comparing(s -> (String) s.getPrimaryKeyValue()));
-            case "Integer" -> tuples.sort(Comparator.comparing(s -> (int) s.getPrimaryKeyValue()));
-            case "Double" -> tuples.sort(Comparator.comparing(s -> (double) s.getPrimaryKeyValue()));
-        }
     }
 
     // Method to insert a new tuple in the page with checks over the types of the values
@@ -172,6 +158,13 @@ public class Page implements Serializable {
 
     public int getSerial() {
         return serial;
+    }
+
+    public Object[] getMinMax(String key){
+        Object[] minMax = new Object[2];
+        minMax[0] = tuples.get(0).getValues().get(key);
+        minMax[1] = tuples.get(tuples.size()-1).getValues().get(key);
+        return minMax;
     }
 
 }

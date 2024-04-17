@@ -1,16 +1,17 @@
 package sql.parser;
 
+import Exception.DBAppException;
 import Main.DBApp;
-import com.opencsv.CSVReader;
 import sql.SQLTerm;
 import sql.antlr.SQLiteParser;
 import sql.antlr.SQLiteParserBaseListener;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-
-import Exception.DBAppException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Scanner;
 
 public class DBListener extends SQLiteParserBaseListener {
     private final DBApp dbApp;
@@ -61,7 +62,6 @@ public class DBListener extends SQLiteParserBaseListener {
     }
     private Object parseTypeFromTable(String tableName, String columnName, String value){
         value = formatString(value);
-        ArrayList<String[]> row = new ArrayList<>();
         File file = new File("metadata.csv");
         try(Scanner scanner = new Scanner(file)){
             while(scanner.hasNextLine()){
@@ -273,7 +273,16 @@ public class DBListener extends SQLiteParserBaseListener {
 //        for (SQLiteParser.Result_columnContext column : ctx.select_core(0).result_column()) {
 //            columns.add(column.getText());
 //        }
-
+        if(ctx.select_core(0).expr().size() == 0){
+            try {
+                SQLTerm[] terms = new SQLTerm[1];
+                terms[0] = new SQLTerm(tableName, null, null, null);
+                result = dbApp.selectFromTable(terms, new String[0]);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
         SQLiteParser.ExprContext where = ctx.select_core(0).expr().get(0);
         parseWhere(exprs, operators, where);
 

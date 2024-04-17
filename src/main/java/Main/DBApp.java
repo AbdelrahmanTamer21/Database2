@@ -32,8 +32,6 @@ public class DBApp {
 		tablesDir.mkdir();
 		File pagesDir = new File("Pages");
 		pagesDir.mkdir();
-		File indicesDir = new File("Indices");
-		indicesDir.mkdir();
 		File metadata = new File("metadata.csv");
 		try(Scanner scanner = new Scanner(metadata)){
 			while (scanner.hasNextLine()) {
@@ -229,7 +227,7 @@ public class DBApp {
 		checkTableExits(strTableName);
 		Table table = Serializer.deserializeTable(strTableName);
 		assert table != null;
-		table.createIndex(strColName,strIndexName,false);
+		table.createIndex(strColName,strIndexName);
 		Serializer.serializeTable(table,strTableName);
 		File file = new File("metadata.csv");
 		try{
@@ -305,33 +303,33 @@ public class DBApp {
 		if(arrSQLTerms.length!=strarrOperators.length+1){
 			throw new DBAppException("Num of operators must be = SQLTerms -1");
 		}
-		if(arrSQLTerms.length>=1) {
-			String tableName = arrSQLTerms[0]._strTableName;
-			Table table = checkTableExits(tableName);
-			assert table != null;
-			//Edge case checks
-			for (SQLTerm arrSQLTerm : arrSQLTerms) {
-				if (!Objects.equals(arrSQLTerm._strTableName, tableName)) {
-					throw new DBAppException("One of the SQLTerms isn't on the same table");
-				}
-				if (!table.getAttributes().containsKey(arrSQLTerm._strColumnName)) {
-					throw new DBAppException("The Table doesn't contain a " + arrSQLTerm._strColumnName + " column");
-				}
-				if (!arrSQLTerm._objValue.getClass().getName().equals(table.getAttributes().get(arrSQLTerm._strColumnName))) {
-					throw new DBAppException("Class of the object for the operation doesn't match the column class");
-				}
-				if (!Arrays.asList("<", "<=", ">", ">=", "!=", "=").contains(arrSQLTerm._strOperator)) {
-					throw new DBAppException("The only supported operators are <,<=,>,>=,!=,=");
-				}
-			}
-			for (String operator : strarrOperators){
-				if (!Arrays.asList("AND","OR","XOR").contains(operator.toUpperCase())) {
-					throw new DBAppException("The only supported array operators are AND,OR,XOR");
-				}
-			}
-			return table.selectFromTable(arrSQLTerms,strarrOperators);
+		String tableName = arrSQLTerms[0]._strTableName;
+		Table table = checkTableExits(tableName);
+		assert table != null;
+		if (arrSQLTerms.length == 1 && arrSQLTerms[0]._strColumnName == null && arrSQLTerms[0]._strOperator == null && arrSQLTerms[0]._objValue == null) {
+			return table.selectFromTable(new SQLTerm[0],strarrOperators);
 		}
-		return null;
+		//Edge case checks
+		for (SQLTerm arrSQLTerm : arrSQLTerms) {
+			if (!Objects.equals(arrSQLTerm._strTableName, tableName)) {
+				throw new DBAppException("One of the SQLTerms isn't on the same table");
+			}
+			if (!table.getAttributes().containsKey(arrSQLTerm._strColumnName)) {
+				throw new DBAppException("The Table doesn't contain a " + arrSQLTerm._strColumnName + " column");
+			}
+			if (!arrSQLTerm._objValue.getClass().getName().equals(table.getAttributes().get(arrSQLTerm._strColumnName))) {
+				throw new DBAppException("Class of the object for the operation doesn't match the column class");
+			}
+			if (!Arrays.asList("<", "<=", ">", ">=", "!=", "=").contains(arrSQLTerm._strOperator)) {
+				throw new DBAppException("The only supported operators are <,<=,>,>=,!=,=");
+			}
+		}
+		for (String operator : strarrOperators){
+			if (!Arrays.asList("AND","OR","XOR").contains(operator.toUpperCase())) {
+				throw new DBAppException("The only supported array operators are AND,OR,XOR");
+			}
+		}
+		return table.selectFromTable(arrSQLTerms,strarrOperators);
 	}
 
 	public HashSet<String> getMyTables(){
@@ -346,16 +344,11 @@ public class DBApp {
 		assert table != null;
 		File pagesDir = new File("Pages/"+strTableName);
 		File[] files = pagesDir.listFiles();
+		assert files != null;
 		for (File file : files) {
 			file.delete();
 		}
 		pagesDir.delete();
-		File indicesDir = new File("Indices/"+strTableName);
-		files = indicesDir.listFiles();
-		for (File file : files) {
-			file.delete();
-		}
-		indicesDir.delete();
 		File tableFile = new File("Tables/"+strTableName+".ser");
 		tableFile.delete();
 		myTables.remove(strTableName);
@@ -471,7 +464,7 @@ public class DBApp {
 			dbApp.parseSQL(sqlBuffer);
 			sqlBuffer = new StringBuffer("INSERT INTO example_table (id, name, age) VALUES (1, 'John', 15), (2, 'Sam', 17);");
 			dbApp.parseSQL(sqlBuffer);
-			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 OR name = 'Sam';");
+			sqlBuffer = new StringBuffer("SELECT * FROM example_table;");
 			resultSet = dbApp.parseSQL(sqlBuffer);
 			while (resultSet.hasNext()){
 				System.out.println(resultSet.next());
@@ -481,7 +474,7 @@ public class DBApp {
 			sqlBuffer = new StringBuffer("DELETE FROM example_table WHERE id = 5;");
 			dbApp.parseSQL(sqlBuffer);
 			System.out.println();
-			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id >= 1 OR name = 'Sam';");
+			sqlBuffer = new StringBuffer("SELECT * FROM example_table WHERE id = 1;");
 			resultSet = dbApp.parseSQL(sqlBuffer);
 			while (resultSet.hasNext()){
 				System.out.println(resultSet.next());

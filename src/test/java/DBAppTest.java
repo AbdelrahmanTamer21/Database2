@@ -1,6 +1,9 @@
 import BTree.BTree;
 import Exception.DBAppException;
-import Main.*;
+import Main.DBApp;
+import Main.Page;
+import Main.Table;
+import Main.Tuple;
 import Utilities.Serializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,7 +141,7 @@ public class DBAppTest {
 
 		for (int i = 1; i < 300; i++) {
 			// Given
-			Hashtable<String, Object> htblColNameValue = createRow(i, TEST_NAME, TEST_GPA);
+			Hashtable<String, Object> htblColNameValue = createRow(i, TEST_NAME, TEST_GPA+(i%10));
 
 			// When
 			engine.insertIntoTable(newTableName, htblColNameValue);
@@ -898,7 +901,7 @@ public class DBAppTest {
 		//Given
 		for (int i = 1; i < 9 ; i++)
 			insertRow(i);
-		StringBuffer command = new StringBuffer("SELECT * FROM "+newTableName+" WHERE name = \'Abdo\'; ");
+		StringBuffer command = new StringBuffer("SELECT * FROM "+newTableName+" WHERE name = 'Abdo'; ");
 
 		//When
 		Iterator it = engine.parseSQL(command);
@@ -913,14 +916,14 @@ public class DBAppTest {
 		for (int i = 1; i < 9; i++)
 			insertRow(i);
 		StringBuffer command = new StringBuffer(
-				"INSERT INTO " +newTableName + "(id, gpa, name) VALUES (10, 1.7, \'Abdo\');");
-		int oldSize = Serializer.deserializeTable(newTableName).getSize();
+				"INSERT INTO " +newTableName + "(id, gpa, name) VALUES (10, 1.7, 'Abdo');");
+		int oldSize = Objects.requireNonNull(Serializer.deserializeTable(newTableName)).getSize();
 
 		// When
 		engine.parseSQL(command);
 
 		// Then
-		int newSize = Serializer.deserializeTable(newTableName).getSize();
+		int newSize = Objects.requireNonNull(Serializer.deserializeTable(newTableName)).getSize();
 		assertEquals(oldSize + 1,  newSize);
 	}
 
@@ -929,12 +932,12 @@ public class DBAppTest {
 		// Given
 		insertRow(1);
 		StringBuffer command = new StringBuffer("UPDATE " + newTableName + " SET gpa = 1.5 WHERE id = 1; ");
-		double oldGpa = (double) (Serializer.deserializePage(newTableName, 1).getTuples().get(0).getValues().get("gpa"));
+		double oldGpa = (double) (Objects.requireNonNull(Serializer.deserializePage(newTableName, 1)).getTuples().get(0).getValues().get("gpa"));
 		// When
 		engine.parseSQL(command);
 
 		// Then
-		double newGpa = (double) (Serializer.deserializePage(newTableName, 1).getTuples().get(0).getValues().get("gpa"));
+		double newGpa = (double) (Objects.requireNonNull(Serializer.deserializePage(newTableName, 1)).getTuples().get(0).getValues().get("gpa"));
 		assertEquals(TEST_GPA, oldGpa);
 		assertEquals(1.5, newGpa);
 	}
@@ -950,6 +953,7 @@ public class DBAppTest {
 
 		// Then
 		Table table = Serializer.deserializeTable(newTableName);
+		assert table != null;
 		assertTrue(table.isEmpty());
 	}
 

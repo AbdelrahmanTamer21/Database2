@@ -22,10 +22,9 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 		this.colName = colName;
 	}
 
-	public String getIndexName() {
-		return indexName;
+	public String getColName() {
+		return colName;
 	}
-
 	public int getRootKeyCount(){
 		return root.keyCount;
 	}
