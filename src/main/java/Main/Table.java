@@ -366,6 +366,22 @@ public class Table implements Serializable {
 
     // Method to delete tuples
     public void deleteTuples(Hashtable<String, Object> values) throws DBAppException {
+        if(values.isEmpty()){
+            File file = new File("Pages/" + tableName);
+            for (File f : Objects.requireNonNull(file.listFiles())) {
+                f.delete();
+            }
+            for (BTree<?, String> bTree : indices) {
+                bTree.deleteAll();
+            }
+            pageNames.clear();
+            minMaxValues.clear();
+            size = 0;
+            return;
+        }
+        if(values.size()>attributes.size()){
+            throw new DBAppException("The Tuple has more columns than the table's columns");
+        }
         for(Map.Entry<String, Object> entry: values.entrySet()){
             if(!attributes.containsKey(entry.getKey())){
                 throw new DBAppException("The Tuple contains come columns that aren't in the table");

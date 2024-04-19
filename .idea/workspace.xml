@@ -4,18 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Made btrees saved to disk">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Project Done">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTreeLeafNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Page.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Page.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Utilities/Serializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Utilities/Serializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sql/parser/DBListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sql/parser/DBListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +51,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectId" id="2cs0vOePi2kgLgIPBY5T188j2ML" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -163,7 +157,8 @@
       <workItem from="1712892518394" duration="4315000" />
       <workItem from="1712901653973" duration="302000" />
       <workItem from="1712919356717" duration="62450000" />
-      <workItem from="1713376736047" duration="2895000" />
+      <workItem from="1713376736047" duration="10156000" />
+      <workItem from="1713473508654" duration="5006000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -326,7 +321,14 @@
       <option name="project" value="LOCAL" />
       <updated>1712933405193</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Project Done">
+      <created>1713380403702</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1713380403702</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -365,7 +367,8 @@
     <MESSAGE value="Finished Antlr Imp and adding tests while checking piazza" />
     <MESSAGE value="Made DBApp work even after closing the program to load made tables" />
     <MESSAGE value="Made btrees saved to disk" />
-    <option name="LAST_COMMIT_MESSAGE" value="Made btrees saved to disk" />
+    <MESSAGE value="Project Done" />
+    <option name="LAST_COMMIT_MESSAGE" value="Project Done" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

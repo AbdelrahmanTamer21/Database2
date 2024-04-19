@@ -73,8 +73,12 @@ public class BTree<TKey extends Comparable<TKey>, TValue> implements java.io.Ser
 			}
 			leaf = leaf.getRightSibling();
 		}
-
 	}
+
+	public void deleteAll(){
+		this.root = new BTreeLeafNode<TKey,TValue>();
+	}
+
 
 	/**
 	 * Search a key value on the tree and return its associated value.
