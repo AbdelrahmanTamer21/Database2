@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Project Done">
+    <list default="true" id="611b180c-7a18-4550-a765-52cfed07f3d1" name="Changes" comment="Delete all method">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BTree/BTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/metadata.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/DBAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DBAppTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,7 +155,8 @@
       <workItem from="1712901653973" duration="302000" />
       <workItem from="1712919356717" duration="62450000" />
       <workItem from="1713376736047" duration="10156000" />
-      <workItem from="1713473508654" duration="5006000" />
+      <workItem from="1713473508654" duration="6297000" />
+      <workItem from="1713612629550" duration="352000" />
     </task>
     <task id="LOCAL-00001" summary="Main Setup">
       <created>1708885329377</created>
@@ -328,7 +326,14 @@
       <option name="project" value="LOCAL" />
       <updated>1713380403702</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Delete all method">
+      <created>1713557778405</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1713557778405</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -368,7 +373,8 @@
     <MESSAGE value="Made DBApp work even after closing the program to load made tables" />
     <MESSAGE value="Made btrees saved to disk" />
     <MESSAGE value="Project Done" />
-    <option name="LAST_COMMIT_MESSAGE" value="Project Done" />
+    <MESSAGE value="Delete all method" />
+    <option name="LAST_COMMIT_MESSAGE" value="Delete all method" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

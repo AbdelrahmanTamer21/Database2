@@ -33,7 +33,9 @@ public class DBApp {
 		File pagesDir = new File("Pages");
 		pagesDir.mkdir();
 		File metadata = new File("metadata.csv");
-		try(Scanner scanner = new Scanner(metadata)){
+		try{
+			metadata.createNewFile();
+			Scanner scanner = new Scanner(metadata);
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				String[] values = line.split(",");
