@@ -777,6 +777,7 @@ public class Table implements Serializable {
                         Tuple tuple = page.getTuples().get(page.binarySearchString(primaryKey));
                         dataSet.put(primaryKey,tuple);
                     }
+                    return dataSet;
                 }
                 case "java.lang.Integer" -> {
                     BTree<Integer,String> bTree = (BTree<Integer,String>) getBTree(sqlTerm._strColumnName);
@@ -789,6 +790,7 @@ public class Table implements Serializable {
                         Tuple tuple = page.getTuples().get(page.binarySearchString(primaryKey));
                         dataSet.put(primaryKey,tuple);
                     }
+                    return dataSet;
                 }
                 case "java.lang.Double" -> {
                     BTree<Double,String> bTree = (BTree<Double,String>) getBTree(sqlTerm._strColumnName);
